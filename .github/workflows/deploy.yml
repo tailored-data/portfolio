@@ -1,0 +1,65 @@
+# Builds the site and publishes it to GitHub Pages on every push to main.
+#
+# You never run this yourself — GitHub runs it on their machines. Push a
+# commit, and roughly 60 seconds later the live site reflects it.
+
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  # Adds a "Run workflow" button on the Actions tab for manual re-runs.
+  workflow_dispatch:
+
+# Least-privilege token scopes. Pages deployment needs exactly these three.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# If you push twice quickly, cancel the first run rather than racing.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # @v7 (not @v7.0.1) tracks the latest v7 patch automatically, so
+      # security fixes arrive without editing this file. v4 of these actions
+      # ran on the Node 20 runtime, which GitHub has deprecated.
+      - name: Check out the repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      # `npm ci` instead of `npm install`: it installs the exact tree pinned
+      # in package-lock.json rather than re-resolving. That makes the build
+      # reproducible — but it also means package.json and package-lock.json
+      # MUST be committed together, or this step fails.
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload the built site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

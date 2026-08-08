@@ -1,0 +1,1681 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark light">
+<title>Taylor Burks — Database &amp; Software Engineering</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+(function(){try{var t=localStorage.getItem('portfolioTheme');var l=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches;document.documentElement.setAttribute('data-theme',t||(l?'light':'dark'));}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();
+</script>
+<style>
+/* ==========================================================================
+   Design tokens.
+
+   Every color, space, and duration on the site resolves through a variable
+   declared here. Changing the palette is a one-file edit, and the light
+   theme is just a second set of values for the same names — no component
+   anywhere knows which theme is active.
+   ========================================================================== */
+
+:root {
+  /* --- Type ------------------------------------------------------------ */
+  --fontSans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --fontMono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+
+  /* Fluid type: clamp(min, preferred, max). The vw term scales with the
+     viewport so headings shrink on phones without a single media query. */
+  --textHero: clamp(2.5rem, 7vw, 5rem);
+  --textSectionTitle: clamp(1.75rem, 4vw, 2.75rem);
+  --textCardTitle: clamp(1.15rem, 2vw, 1.4rem);
+  --textBody: clamp(1rem, 1.1vw, 1.075rem);
+  --textSmall: 0.875rem;
+  --textMicro: 0.75rem;
+
+  /* --- Space ----------------------------------------------------------- */
+  --space2xs: 0.25rem;
+  --spaceXs: 0.5rem;
+  --spaceSm: 0.875rem;
+  --spaceMd: 1.5rem;
+  --spaceLg: 2.5rem;
+  --spaceXl: 4rem;
+  --space2xl: clamp(4rem, 10vw, 8rem);
+
+  --contentMaxWidth: 1120px;
+  --gutter: clamp(1.25rem, 5vw, 3.5rem);
+
+  --radiusSm: 6px;
+  --radiusMd: 12px;
+  --radiusLg: 20px;
+  --radiusPill: 999px;
+
+  /* --- Motion ---------------------------------------------------------- */
+  --durationFast: 180ms;
+  --durationBase: 420ms;
+  --durationSlow: 900ms;
+  /* Decelerating curve: fast start, soft landing. Reads as "arriving"
+     rather than "sliding", which is what makes reveals feel calm. */
+  --easeOut: cubic-bezier(0.16, 1, 0.3, 1);
+  --easeInOut: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* --------------------------------------------------------------------------
+   DARK THEME (default)
+
+   Color psychology, deliberately:
+   - Deep navy base: stability, competence, trust. The conventional palette
+     for data and infrastructure work, which is exactly the read we want.
+   - Exactly ONE saturated hue (cyan) across the entire page. Because
+     nothing else competes for attention, anything cyan is involuntarily
+     read as "the next thing" — that is the mechanism doing the eye-guiding.
+   - Everything else is a desaturated navy-tinted neutral so the accent
+     never has to fight for contrast.
+   -------------------------------------------------------------------------- */
+[data-theme='dark'] {
+  --colorBackground: #070f18;
+  --colorSurface: #0b1b2b;
+  --colorSurfaceRaised: #10243a;
+  --colorSurfaceGlass: rgba(16, 36, 58, 0.72);
+
+  --colorTextPrimary: #eaf2fb;
+  --colorTextSecondary: #9db2c9;
+  /* Lifted from #63798f: muted text is used at 12–14px, which needs the
+     full 4.5:1 AA ratio, not the 3:1 large-text allowance. */
+  --colorTextMuted: #7089a0;
+
+  --colorAccent: #22d3ee;
+  --colorAccentSoft: rgba(34, 211, 238, 0.14);
+  --colorAccentGlow: rgba(34, 211, 238, 0.34);
+
+  --colorBorder: rgba(157, 178, 201, 0.16);
+  --colorBorderStrong: rgba(157, 178, 201, 0.3);
+
+  --colorRailTrack: rgba(157, 178, 201, 0.14);
+
+  --shadowCard: 0 18px 46px -24px rgba(0, 0, 0, 0.85);
+  --shadowLifted: 0 26px 60px -28px rgba(0, 0, 0, 0.95);
+
+  /* Slow radial washes behind the hero. Gives depth without an image
+     request, and keeps the page a single lightweight HTML payload. */
+  --heroWash:
+    radial-gradient(60rem 40rem at 82% -12%, rgba(34, 211, 238, 0.16), transparent 62%),
+    radial-gradient(45rem 32rem at 4% 8%, rgba(56, 118, 189, 0.14), transparent 60%);
+
+  color-scheme: dark;
+}
+
+/* --------------------------------------------------------------------------
+   LIGHT THEME
+
+   Same token names, re-valued. The accent darkens to #0e7490 because the
+   bright cyan that carries 12:1 contrast on navy would only manage ~1.8:1
+   on white — well under the 4.5:1 WCAG AA floor for body text.
+   -------------------------------------------------------------------------- */
+[data-theme='light'] {
+  --colorBackground: #f6f9fc;
+  --colorSurface: #ffffff;
+  --colorSurfaceRaised: #ffffff;
+  --colorSurfaceGlass: rgba(255, 255, 255, 0.82);
+
+  --colorTextPrimary: #0b1b2b;
+  --colorTextSecondary: #47617a;
+  /* Darkened from #7c93a8 for the same reason as the dark theme. */
+  --colorTextMuted: #5a7082;
+
+  --colorAccent: #0e7490;
+  --colorAccentSoft: rgba(14, 116, 144, 0.1);
+  --colorAccentGlow: rgba(14, 116, 144, 0.22);
+
+  --colorBorder: rgba(11, 27, 43, 0.12);
+  --colorBorderStrong: rgba(11, 27, 43, 0.22);
+
+  --colorRailTrack: rgba(11, 27, 43, 0.1);
+
+  --shadowCard: 0 16px 40px -26px rgba(11, 27, 43, 0.4);
+  --shadowLifted: 0 24px 54px -26px rgba(11, 27, 43, 0.32);
+
+  --heroWash:
+    radial-gradient(60rem 40rem at 82% -12%, rgba(14, 116, 144, 0.12), transparent 62%),
+    radial-gradient(45rem 32rem at 4% 8%, rgba(56, 118, 189, 0.1), transparent 60%);
+
+  color-scheme: light;
+}
+
+/* ==========================================================================
+   1. RESET & BASE
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Anchor targets stop below the fixed header instead of under it. */
+  scroll-padding-top: 6rem;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--fontSans);
+  font-size: var(--textBody);
+  line-height: 1.65;
+  color: var(--colorTextPrimary);
+  background-color: var(--colorBackground);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  transition:
+    background-color var(--durationBase) var(--easeInOut),
+    color var(--durationBase) var(--easeInOut);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  line-height: 1.15;
+  letter-spacing: -0.022em;
+  font-weight: 700;
+}
+
+p {
+  margin: 0;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+/* Visible focus for keyboard users only — :focus-visible excludes mouse
+   clicks, so the ring appears when it's actually navigational. */
+:focus-visible {
+  outline: 2px solid var(--colorAccent);
+  outline-offset: 3px;
+  border-radius: var(--radiusSm);
+}
+
+.skipLink {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 200;
+  padding: var(--spaceSm) var(--spaceMd);
+  background: var(--colorAccent);
+  color: #04121b;
+  font-weight: 600;
+  border-radius: 0 0 var(--radiusMd) 0;
+}
+
+.skipLink:focus {
+  left: 0;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ==========================================================================
+   2. LAYOUT PRIMITIVES
+   ========================================================================== */
+
+.contentShell {
+  width: 100%;
+  max-width: var(--contentMaxWidth);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.pageSection {
+  position: relative;
+  padding-block: var(--space2xl);
+}
+
+.sectionHeading {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spaceMd);
+  margin-bottom: var(--spaceXl);
+}
+
+.sectionIndex {
+  font-family: var(--fontMono);
+  font-size: var(--textSmall);
+  color: var(--colorAccent);
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+
+.sectionTitle {
+  font-size: var(--textSectionTitle);
+}
+
+/* The hairline runs from the title toward the right margin. It has no
+   semantic job — it exists to extend the eye's travel horizontally so the
+   gaze finishes each heading pointed at the content beneath it. */
+.sectionRule {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--colorBorderStrong), transparent);
+  align-self: center;
+}
+
+/* ==========================================================================
+   3. SCROLL REVEAL
+
+   Elements start slightly offset and transparent, then transition in when
+   the IntersectionObserver adds .isVisible. Transform + opacity only:
+   both are GPU-composited, so this never triggers layout and stays at
+   60fps even with every section mounted.
+   ========================================================================== */
+
+.revealItem {
+  opacity: 0;
+  transform: translate3d(0, 26px, 0);
+  transition:
+    opacity var(--durationSlow) var(--easeOut),
+    transform var(--durationSlow) var(--easeOut);
+  transition-delay: var(--revealDelay, 0ms);
+  will-change: opacity, transform;
+}
+
+.revealItem.fromLeft {
+  transform: translate3d(-34px, 14px, 0);
+}
+
+.revealItem.fromRight {
+  transform: translate3d(34px, 14px, 0);
+}
+
+.revealItem.isVisible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+/* ==========================================================================
+   4. PROGRESS RAIL
+
+   Fixed to the left edge. The fill height is driven by a CSS variable that
+   React updates from scroll position, so the user always has a peripheral
+   read on how far through the page they are.
+   ========================================================================== */
+
+.progressRail {
+  position: fixed;
+  left: clamp(0.75rem, 2.2vw, 1.75rem);
+  top: 22vh;
+  bottom: 14vh;
+  width: 2px;
+  background: var(--colorRailTrack);
+  border-radius: var(--radiusPill);
+  z-index: 40;
+  pointer-events: none;
+}
+
+.progressRailFill {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: var(--scrollProgress, 0%);
+  background: linear-gradient(180deg, var(--colorAccent), var(--colorAccentGlow));
+  border-radius: var(--radiusPill);
+  box-shadow: 0 0 14px var(--colorAccentGlow);
+  transition: height 120ms linear;
+}
+
+/* Dot markers sit at each section's position along the rail. The active
+   one scales up and lights, giving a second, non-textual "you are here". */
+.progressRailMarker {
+  position: absolute;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  margin-left: -3.5px;
+  border-radius: 50%;
+  background: var(--colorBackground);
+  border: 1.5px solid var(--colorBorderStrong);
+  transform: translateY(-50%) scale(1);
+  transition:
+    transform var(--durationFast) var(--easeOut),
+    background-color var(--durationFast) var(--easeOut),
+    border-color var(--durationFast) var(--easeOut);
+}
+
+.progressRailMarker.isActive {
+  background: var(--colorAccent);
+  border-color: var(--colorAccent);
+  transform: translateY(-50%) scale(1.55);
+  box-shadow: 0 0 12px var(--colorAccentGlow);
+}
+
+@media (max-width: 900px) {
+  .progressRail {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   5. HEADER
+   ========================================================================== */
+
+.siteHeader {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  z-index: 100;
+  transition:
+    background-color var(--durationBase) var(--easeInOut),
+    border-color var(--durationBase) var(--easeInOut),
+    backdrop-filter var(--durationBase) var(--easeInOut);
+  border-bottom: 1px solid transparent;
+}
+
+.siteHeader.isScrolled {
+  background: var(--colorSurfaceGlass);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  border-bottom-color: var(--colorBorder);
+}
+
+.siteHeaderInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spaceMd);
+  height: 4.5rem;
+}
+
+.headerMark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spaceXs);
+  font-family: var(--fontMono);
+  font-weight: 500;
+  font-size: var(--textSmall);
+  letter-spacing: 0.14em;
+}
+
+.headerMarkInitials {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radiusSm);
+  background: var(--colorAccentSoft);
+  color: var(--colorAccent);
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.headerNav {
+  display: flex;
+  align-items: center;
+  gap: var(--spaceXs);
+}
+
+.headerNavLink {
+  position: relative;
+  padding: var(--space2xs) var(--spaceSm);
+  font-size: var(--textSmall);
+  color: var(--colorTextSecondary);
+  border-radius: var(--radiusSm);
+  transition: color var(--durationFast) var(--easeOut);
+}
+
+.headerNavLink::after {
+  content: '';
+  position: absolute;
+  left: var(--spaceSm);
+  right: var(--spaceSm);
+  bottom: 2px;
+  height: 1.5px;
+  background: var(--colorAccent);
+  border-radius: var(--radiusPill);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--durationBase) var(--easeOut);
+}
+
+.headerNavLink:hover,
+.headerNavLink.isActive {
+  color: var(--colorTextPrimary);
+}
+
+.headerNavLink.isActive::after,
+.headerNavLink:hover::after {
+  transform: scaleX(1);
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spaceXs);
+}
+
+.iconButton {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radiusSm);
+  color: var(--colorTextSecondary);
+  border: 1px solid transparent;
+  transition:
+    color var(--durationFast) var(--easeOut),
+    border-color var(--durationFast) var(--easeOut),
+    background-color var(--durationFast) var(--easeOut);
+}
+
+.iconButton:hover {
+  color: var(--colorAccent);
+  border-color: var(--colorBorder);
+  background: var(--colorAccentSoft);
+}
+
+@media (max-width: 780px) {
+  .headerNav {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   6. HERO
+   ========================================================================== */
+
+.heroSection {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  padding-block: 8rem var(--spaceXl);
+  background-image: var(--heroWash);
+  overflow: hidden;
+}
+
+.heroEyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spaceXs);
+  font-family: var(--fontMono);
+  font-size: var(--textSmall);
+  color: var(--colorAccent);
+  margin-bottom: var(--spaceMd);
+}
+
+.heroStatusDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--colorAccent);
+  box-shadow: 0 0 0 0 var(--colorAccentGlow);
+  animation: statusPulse 2.6s var(--easeInOut) infinite;
+}
+
+@keyframes statusPulse {
+  0% {
+    box-shadow: 0 0 0 0 var(--colorAccentGlow);
+  }
+  70% {
+    box-shadow: 0 0 0 9px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+.heroName {
+  font-size: var(--textHero);
+  max-width: 16ch;
+  margin-bottom: var(--spaceMd);
+}
+
+.heroNameAccent {
+  color: var(--colorAccent);
+}
+
+.heroHeadline {
+  font-size: clamp(1.1rem, 2.4vw, 1.5rem);
+  color: var(--colorTextSecondary);
+  max-width: 46ch;
+  margin-bottom: var(--spaceLg);
+  font-weight: 400;
+}
+
+.heroDisciplines {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spaceXs);
+  margin-bottom: var(--spaceLg);
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spaceSm);
+  margin-bottom: var(--spaceXl);
+}
+
+.heroMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spaceMd);
+  font-family: var(--fontMono);
+  font-size: var(--textSmall);
+  color: var(--colorTextMuted);
+}
+
+/* Scroll cue: the single most important eye-guide on the page. It sits at
+   the bottom of the first viewport and animates downward, resolving the
+   "what now?" moment before the user has to ask it. */
+.scrollCue {
+  position: absolute;
+  left: 50%;
+  bottom: var(--spaceLg);
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spaceXs);
+  font-family: var(--fontMono);
+  font-size: var(--textMicro);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--colorTextMuted);
+}
+
+.scrollCueTrack {
+  width: 1px;
+  height: 3rem;
+  background: var(--colorRailTrack);
+  position: relative;
+  overflow: hidden;
+}
+
+.scrollCueTrack::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: -50%;
+  height: 50%;
+  background: linear-gradient(180deg, transparent, var(--colorAccent));
+  animation: cueDescend 2.1s var(--easeInOut) infinite;
+}
+
+@keyframes cueDescend {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(300%);
+  }
+}
+
+/* ==========================================================================
+   7. BUTTONS, PILLS, TAGS
+   ========================================================================== */
+
+.buttonPrimary,
+.buttonGhost {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spaceXs);
+  padding: 0.7rem 1.35rem;
+  border-radius: var(--radiusPill);
+  font-size: var(--textSmall);
+  font-weight: 600;
+  transition:
+    transform var(--durationFast) var(--easeOut),
+    box-shadow var(--durationFast) var(--easeOut),
+    background-color var(--durationFast) var(--easeOut),
+    border-color var(--durationFast) var(--easeOut);
+}
+
+.buttonPrimary {
+  background: var(--colorAccent);
+  color: #04121b;
+  box-shadow: 0 10px 30px -12px var(--colorAccentGlow);
+}
+
+.buttonPrimary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 38px -12px var(--colorAccentGlow);
+}
+
+.buttonGhost {
+  border: 1px solid var(--colorBorderStrong);
+  color: var(--colorTextPrimary);
+}
+
+.buttonGhost:hover {
+  border-color: var(--colorAccent);
+  color: var(--colorAccent);
+  background: var(--colorAccentSoft);
+  transform: translateY(-2px);
+}
+
+.buttonPrimary:disabled,
+.buttonGhost:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.8rem;
+  border-radius: var(--radiusPill);
+  border: 1px solid var(--colorBorder);
+  background: var(--colorAccentSoft);
+  color: var(--colorTextSecondary);
+  font-size: var(--textMicro);
+  font-family: var(--fontMono);
+  letter-spacing: 0.04em;
+}
+
+.tagRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spaceXs);
+}
+
+/* ==========================================================================
+   8. ZIG-ZAG BLOCKS
+
+   The core eye-flow mechanism. Blocks alternate which side of the grid
+   they occupy, so the reading path traces a Z down the page. Each block's
+   endpoint sits diagonally adjacent to the next one's entry point, which
+   means the eye is already moving in the right direction when the next
+   block arrives. No conscious decision required.
+   ========================================================================== */
+
+.zigZagBlock {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  align-items: center;
+  gap: var(--spaceLg);
+  margin-bottom: var(--space2xl);
+  position: relative;
+}
+
+.zigZagBlock:last-child {
+  margin-bottom: 0;
+}
+
+.zigZagBlock.alignLeft .zigZagBody {
+  grid-column: 1 / span 7;
+}
+
+.zigZagBlock.alignLeft .zigZagAside {
+  grid-column: 9 / span 4;
+}
+
+.zigZagBlock.alignRight .zigZagBody {
+  grid-column: 6 / span 7;
+  order: 2;
+}
+
+.zigZagBlock.alignRight .zigZagAside {
+  grid-column: 1 / span 4;
+  order: 1;
+  text-align: right;
+}
+
+/* Faint connector arc between consecutive blocks. Subliminal, but it gives
+   the gaze a physical path to follow instead of a jump across whitespace. */
+.zigZagConnector {
+  position: absolute;
+  bottom: calc(var(--space2xl) * -0.62);
+  width: 42%;
+  height: calc(var(--space2xl) * 0.75);
+  border-color: var(--colorBorder);
+  border-style: solid;
+  border-width: 0;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+.zigZagBlock.alignLeft .zigZagConnector {
+  left: 12%;
+  border-left-width: 1px;
+  border-bottom-width: 1px;
+  border-bottom-left-radius: var(--radiusLg);
+}
+
+.zigZagBlock.alignRight .zigZagConnector {
+  right: 12%;
+  border-right-width: 1px;
+  border-bottom-width: 1px;
+  border-bottom-right-radius: var(--radiusLg);
+}
+
+.zigZagBlock:last-child .zigZagConnector {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .zigZagBlock,
+  .zigZagBlock.alignLeft,
+  .zigZagBlock.alignRight {
+    grid-template-columns: 1fr;
+    gap: var(--spaceMd);
+    margin-bottom: var(--spaceXl);
+  }
+
+  .zigZagBlock.alignLeft .zigZagBody,
+  .zigZagBlock.alignRight .zigZagBody,
+  .zigZagBlock.alignLeft .zigZagAside,
+  .zigZagBlock.alignRight .zigZagAside {
+    grid-column: 1 / -1;
+    order: initial;
+    text-align: left;
+  }
+
+  .zigZagBlock.alignRight .zigZagBody {
+    order: 2;
+  }
+
+  .zigZagBlock.alignRight .zigZagAside {
+    order: 1;
+  }
+
+  .zigZagConnector {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   9. CARDS
+   ========================================================================== */
+
+.card {
+  position: relative;
+  padding: var(--spaceLg);
+  border-radius: var(--radiusLg);
+  background: var(--colorSurface);
+  border: 1px solid var(--colorBorder);
+  box-shadow: var(--shadowCard);
+  transition:
+    transform var(--durationBase) var(--easeOut),
+    border-color var(--durationBase) var(--easeOut),
+    box-shadow var(--durationBase) var(--easeOut);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  border-color: var(--colorBorderStrong);
+  box-shadow: var(--shadowLifted);
+}
+
+/* Accent bar on the leading edge, revealed on hover. Confirms the card is
+   the active object without changing its size or shifting the layout. */
+.card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: var(--spaceLg);
+  bottom: var(--spaceLg);
+  width: 2px;
+  border-radius: var(--radiusPill);
+  background: var(--colorAccent);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform var(--durationBase) var(--easeOut);
+}
+
+.card:hover::before {
+  transform: scaleY(1);
+}
+
+.cardTitle {
+  font-size: var(--textCardTitle);
+  margin-bottom: var(--space2xs);
+}
+
+.cardSubtitle {
+  color: var(--colorAccent);
+  font-size: var(--textSmall);
+  font-weight: 600;
+  margin-bottom: var(--spaceSm);
+}
+
+.cardMeta {
+  font-family: var(--fontMono);
+  font-size: var(--textMicro);
+  color: var(--colorTextMuted);
+  letter-spacing: 0.05em;
+}
+
+.cardBody {
+  color: var(--colorTextSecondary);
+}
+
+.bulletList {
+  display: grid;
+  gap: var(--spaceSm);
+  margin-top: var(--spaceMd);
+}
+
+.bulletList li {
+  position: relative;
+  padding-left: 1.35rem;
+  color: var(--colorTextSecondary);
+  font-size: var(--textBody);
+}
+
+/* Row of source/live buttons at the foot of a project card. Wraps rather
+   than overflowing when a card is narrow. */
+.projectLinks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spaceSm);
+  margin-top: var(--spaceLg);
+}
+
+/* Stands in for a repo button when the source is deliberately private.
+   Styled as quiet text, not a button, so it doesn't invite a click. */
+.sourceNote {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space2xs);
+  font-family: var(--fontMono);
+  font-size: var(--textMicro);
+  letter-spacing: 0.04em;
+  color: var(--colorTextMuted);
+  padding: 0.3rem 0.7rem;
+  border-radius: var(--radiusPill);
+  border: 1px dashed var(--colorBorderStrong);
+}
+
+.bulletList li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: 1.5px solid var(--colorAccent);
+}
+
+/* ==========================================================================
+   10. SECTION-SPECIFIC
+   ========================================================================== */
+
+/* --- About --- */
+.aboutGrid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: var(--spaceXl);
+  align-items: start;
+}
+
+.aboutLead {
+  font-size: clamp(1.1rem, 2vw, 1.35rem);
+  line-height: 1.6;
+  color: var(--colorTextPrimary);
+  margin-bottom: var(--spaceMd);
+}
+
+.aboutBody {
+  color: var(--colorTextSecondary);
+}
+
+.statStack {
+  display: grid;
+  gap: var(--spaceMd);
+}
+
+.statCard {
+  padding: var(--spaceMd);
+  border-radius: var(--radiusMd);
+  border: 1px solid var(--colorBorder);
+  background: var(--colorSurface);
+}
+
+.statValue {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--colorAccent);
+  line-height: 1.2;
+}
+
+.statLabel {
+  font-size: var(--textSmall);
+  color: var(--colorTextMuted);
+}
+
+@media (max-width: 860px) {
+  .aboutGrid {
+    grid-template-columns: 1fr;
+    gap: var(--spaceLg);
+  }
+}
+
+/* --- Skills --- */
+.skillGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: var(--spaceMd);
+}
+
+.skillGroupTitle {
+  font-family: var(--fontMono);
+  font-size: var(--textSmall);
+  color: var(--colorAccent);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: var(--spaceSm);
+}
+
+.skillList {
+  display: grid;
+  gap: var(--spaceXs);
+}
+
+.skillList li {
+  color: var(--colorTextSecondary);
+  font-size: var(--textSmall);
+  display: flex;
+  align-items: center;
+  gap: var(--spaceXs);
+}
+
+.skillList li::before {
+  content: '';
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--colorAccent);
+  opacity: 0.65;
+  flex-shrink: 0;
+}
+
+/* --- Credentials --- */
+.credentialGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  gap: var(--spaceMd);
+}
+
+.credentialBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space2xs);
+  padding: 0.2rem 0.65rem;
+  border-radius: var(--radiusPill);
+  font-size: var(--textMicro);
+  font-family: var(--fontMono);
+  border: 1px solid var(--colorAccent);
+  color: var(--colorAccent);
+  background: var(--colorAccentSoft);
+}
+
+/* --- Contact --- */
+.contactGrid {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: var(--spaceXl);
+  align-items: start;
+}
+
+.contactChannels {
+  display: grid;
+  gap: var(--spaceSm);
+  margin-top: var(--spaceLg);
+}
+
+.contactChannel {
+  display: flex;
+  align-items: center;
+  gap: var(--spaceSm);
+  padding: var(--spaceSm) var(--spaceMd);
+  border-radius: var(--radiusMd);
+  border: 1px solid var(--colorBorder);
+  color: var(--colorTextSecondary);
+  transition:
+    border-color var(--durationFast) var(--easeOut),
+    color var(--durationFast) var(--easeOut),
+    transform var(--durationFast) var(--easeOut);
+}
+
+.contactChannel:hover {
+  border-color: var(--colorAccent);
+  color: var(--colorTextPrimary);
+  transform: translateX(4px);
+}
+
+.contactForm {
+  display: grid;
+  gap: var(--spaceMd);
+  padding: var(--spaceLg);
+  border-radius: var(--radiusLg);
+  border: 1px solid var(--colorBorder);
+  background: var(--colorSurface);
+  box-shadow: var(--shadowCard);
+}
+
+.formField {
+  display: grid;
+  gap: var(--space2xs);
+}
+
+.formLabel {
+  font-size: var(--textMicro);
+  font-family: var(--fontMono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--colorTextMuted);
+}
+
+.formInput,
+.formTextarea {
+  width: 100%;
+  padding: 0.75rem 0.95rem;
+  border-radius: var(--radiusMd);
+  border: 1px solid var(--colorBorder);
+  background: var(--colorBackground);
+  color: var(--colorTextPrimary);
+  font-family: inherit;
+  font-size: var(--textSmall);
+  transition:
+    border-color var(--durationFast) var(--easeOut),
+    box-shadow var(--durationFast) var(--easeOut);
+}
+
+.formTextarea {
+  resize: vertical;
+  min-height: 8rem;
+}
+
+.formInput:focus,
+.formTextarea:focus {
+  outline: none;
+  border-color: var(--colorAccent);
+  box-shadow: 0 0 0 3px var(--colorAccentSoft);
+}
+
+.formStatus {
+  font-size: var(--textSmall);
+  padding: var(--spaceXs) var(--spaceSm);
+  border-radius: var(--radiusSm);
+}
+
+.formStatus.isSuccess {
+  color: var(--colorAccent);
+  background: var(--colorAccentSoft);
+}
+
+.formStatus.isError {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.12);
+}
+
+/* Revealed only after a successful submission. Animated in so the reward
+   for filling the form is obvious rather than something to hunt for. */
+.resumeUnlock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  animation: unlockFadeIn var(--durationBase) var(--easeOut) both;
+}
+
+@keyframes unlockFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.formHint {
+  font-size: var(--textMicro);
+  color: var(--colorTextMuted);
+}
+
+@media (max-width: 860px) {
+  .contactGrid {
+    grid-template-columns: 1fr;
+    gap: var(--spaceLg);
+  }
+}
+
+/* --- Footer --- */
+.siteFooter {
+  border-top: 1px solid var(--colorBorder);
+  padding-block: var(--spaceLg);
+  margin-top: var(--spaceXl);
+}
+
+.siteFooterInner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spaceMd);
+  font-size: var(--textSmall);
+  color: var(--colorTextMuted);
+}
+
+.footerLinks {
+  display: flex;
+  gap: var(--spaceMd);
+}
+
+.footerLinks a {
+  transition: color var(--durationFast) var(--easeOut);
+}
+
+.footerLinks a:hover {
+  color: var(--colorAccent);
+}
+
+/* ==========================================================================
+   11. REDUCED MOTION
+
+   Users with a vestibular-motion sensitivity setting get the full content
+   with none of the movement. Everything is forced to its final state
+   rather than hidden, so nothing becomes unreachable.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .revealItem,
+  .revealItem.fromLeft,
+  .revealItem.fromRight {
+    opacity: 1;
+    transform: none;
+  }
+
+  .card:hover,
+  .buttonPrimary:hover,
+  .buttonGhost:hover,
+  .contactChannel:hover {
+    transform: none;
+  }
+}
+
+</style>
+</head>
+<body>
+
+<a class="skipLink" href="#about">Skip to main content</a>
+
+<header class="siteHeader" id="siteHeader">
+  <div class="contentShell siteHeaderInner">
+    <a class="headerMark" href="#top">
+      <span class="headerMarkInitials">TB</span>
+      <span>TAYLOR BURKS</span>
+    </a>
+    <nav class="headerNav" aria-label="Section navigation">
+      <a href="#about" class="headerNavLink" data-navFor="about">About</a><a href="#skills" class="headerNavLink" data-navFor="skills">Skills</a><a href="#experience" class="headerNavLink" data-navFor="experience">Experience</a><a href="#projects" class="headerNavLink" data-navFor="projects">Projects</a><a href="#credentials" class="headerNavLink" data-navFor="credentials">Credentials</a><a href="#contact" class="headerNavLink" data-navFor="contact">Contact</a>
+    </nav>
+    <div class="headerActions">
+      <a class="iconButton" href="https://github.com/tailored-data" target="_blank" rel="noreferrer noopener" aria-label="GitHub profile"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.7A5.2 5.2 0 0 0 19.9 5a4.9 4.9 0 0 0-.1-3.6s-1.1-.3-3.7 1.4a12.7 12.7 0 0 0-6.6 0C6.9 1.1 5.8 1.4 5.8 1.4A4.9 4.9 0 0 0 5.7 5a5.2 5.2 0 0 0-1.4 3.6c0 5.2 3.2 6.4 6.2 6.7a3.4 3.4 0 0 0-.9 2.6V22"/></svg></a>
+      <button class="iconButton" id="themeToggle" type="button" aria-label="Toggle theme"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<div class="progressRail" aria-hidden="true" id="progressRail">
+  <div class="progressRailFill" id="progressRailFill"></div>
+  <span class="progressRailMarker" data-markerFor="about" style="top:0%"></span><span class="progressRailMarker" data-markerFor="skills" style="top:20%"></span><span class="progressRailMarker" data-markerFor="experience" style="top:40%"></span><span class="progressRailMarker" data-markerFor="projects" style="top:60%"></span><span class="progressRailMarker" data-markerFor="credentials" style="top:80%"></span><span class="progressRailMarker" data-markerFor="contact" style="top:100%"></span>
+</div>
+
+<main>
+  
+<section class="heroSection" id="top">
+  <div class="contentShell">
+    <p class="heroEyebrow revealItem"><span class="heroStatusDot" aria-hidden="true"></span>Available for engineering &amp; analytics roles</p>
+    <h1 class="heroName revealItem">Taylor <span class="heroNameAccent">Burks</span></h1>
+    <p class="heroHeadline revealItem">I build the systems that turn data into decisions.</p>
+    <div class="heroDisciplines revealItem"><span class="pill">Database Engineering</span><span class="pill">Data Analytics</span><span class="pill">Software Engineering</span></div>
+    <div class="heroActions revealItem">
+      <a class="buttonPrimary" href="#projects">View my work <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      <a class="buttonGhost" href="#contact"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5M12 15V3"/></svg> Request résumé</a>
+      <a class="buttonGhost" href="mailto:taylorburks@me.com"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg> Get in touch</a>
+    </div>
+    <div class="heroMeta revealItem">
+      <span style="display:inline-flex;align-items:center;gap:.4rem"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Crystal River, FL</span>
+      <span>Currently — Student Finance Advisor @ Ultimate Medical Academy</span>
+    </div>
+  </div>
+  <div class="scrollCue" aria-hidden="true"><span>Scroll</span><span class="scrollCueTrack"></span></div>
+</section>
+  
+<section class="pageSection" id="about">
+  <div class="contentShell">
+    
+  <header class="sectionHeading revealItem">
+    <span class="sectionIndex">01</span>
+    <h2 class="sectionTitle">About</h2>
+    <span class="sectionRule" aria-hidden="true"></span>
+  </header>
+    <div class="aboutGrid">
+      <div class="revealItem fromLeft">
+        <p class="aboutLead">I work at the seam between data and software — where a report stops being a spreadsheet and starts being a system.</p>
+        <p class="aboutBody">Information Management professional with a foundation in database administration and data analytics. I pair hands-on SQL and Power BI reporting with self-directed software engineering in C#/.NET — designing and shipping reliable systems end to end, from data pipelines and reporting through to networked desktop applications and containerized infrastructure.</p>
+      </div>
+      <div class="statStack revealItem fromRight">
+        <div class="statCard"><div class="statValue">21+</div><div class="statLabel">Technologies worked in</div></div><div class="statCard"><div class="statValue">4</div><div class="statLabel">Shipped technical projects</div></div><div class="statCard"><div class="statValue">B.A.Sc.</div><div class="statLabel">Information Management</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="pageSection" id="skills">
+  <div class="contentShell">
+    
+  <header class="sectionHeading revealItem">
+    <span class="sectionIndex">02</span>
+    <h2 class="sectionTitle">Technical Skills</h2>
+    <span class="sectionRule" aria-hidden="true"></span>
+  </header>
+    <div class="skillGrid">
+      
+        <article class="card revealItem">
+          <h3 class="skillGroupTitle">Languages</h3>
+          <ul class="skillList"><li>C#</li><li>SQL (T-SQL)</li><li>Python</li><li>Java</li><li>GDScript</li><li>JavaScript</li></ul>
+        </article>
+        <article class="card revealItem">
+          <h3 class="skillGroupTitle">Data &amp; BI</h3>
+          <ul class="skillList"><li>Power BI</li><li>SQL Server</li><li>Relational database design</li><li>Data analytics &amp; reporting</li></ul>
+        </article>
+        <article class="card revealItem">
+          <h3 class="skillGroupTitle">Platforms</h3>
+          <ul class="skillList"><li>.NET 8</li><li>Docker</li><li>WSL2</li><li>Microsoft Azure</li><li>Godot 4</li></ul>
+        </article>
+        <article class="card revealItem">
+          <h3 class="skillGroupTitle">Engineering</h3>
+          <ul class="skillList"><li>TCP/IP socket programming</li><li>REST APIs</li><li>Git</li><li>Gradle</li><li>Audit logging</li><li>Network hardening</li></ul>
+        </article>
+    </div>
+  </div>
+</section>
+<section class="pageSection" id="experience">
+  <div class="contentShell">
+    
+  <header class="sectionHeading revealItem">
+    <span class="sectionIndex">03</span>
+    <h2 class="sectionTitle">Experience</h2>
+    <span class="sectionRule" aria-hidden="true"></span>
+  </header>
+    
+    <div class="zigZagBlock alignLeft">
+      <div class="zigZagBody revealItem fromLeft"><article class="card">
+             <h3 class="cardTitle">Student Finance Advisor</h3>
+             <p class="cardSubtitle">Ultimate Medical Academy</p>
+             <ul class="bulletList"><li>Build and maintain Power BI reports tracking student financial aid status, surfacing process bottlenecks and prioritizing follow-up across a high-volume caseload.</li><li>Manage financial aid completion workflows, advancing student files through quality-assurance review to verified completion.</li><li>Translate complex regulatory requirements into clear, actionable next steps for students.</li></ul>
+             <div class="tagRow" style="margin-top:1.25rem"><span class="pill">Power BI</span><span class="pill">Reporting</span><span class="pill">Process Analysis</span></div>
+           </article></div>
+      <div class="zigZagAside revealItem fromRight"><div>
+             <div class="cardMeta">Sep 2023 — Present</div>
+             <h3 class="cardTitle" style="margin-top:.35rem">Ultimate Medical Academy</h3>
+             <span class="credentialBadge" style="margin-top:.6rem">Current</span>
+           </div></div>
+      <span class="zigZagConnector" aria-hidden="true"></span>
+    </div>
+    <div class="zigZagBlock alignRight">
+      <div class="zigZagBody revealItem fromRight"><article class="card">
+             <h3 class="cardTitle">Technical Support Analyst — Tier 2</h3>
+             <p class="cardSubtitle">Jonas Software</p>
+             <ul class="bulletList"><li>Delivered Tier 2 support for on-premises devices and a cloud-based property-management CRM, resolving escalated issues across phone, web, email, and live chat.</li><li>Applied cybersecurity patches and configured networking on newly provisioned client devices.</li><li>Configured and troubleshot point-of-sale credit-card terminal hardware at the terminal level.</li></ul>
+             <div class="tagRow" style="margin-top:1.25rem"><span class="pill">Cloud CRM</span><span class="pill">Networking</span><span class="pill">Cybersecurity</span></div>
+           </article></div>
+      <div class="zigZagAside revealItem fromLeft"><div>
+             <div class="cardMeta">Aug 2021 — Jul 2022</div>
+             <h3 class="cardTitle" style="margin-top:.35rem">Jonas Software</h3>
+             
+           </div></div>
+      <span class="zigZagConnector" aria-hidden="true"></span>
+    </div>
+    <div class="zigZagBlock alignLeft">
+      <div class="zigZagBody revealItem fromLeft"><article class="card">
+             <h3 class="cardTitle">Inventory Controller</h3>
+             <p class="cardSubtitle">Microsoft Corporation</p>
+             <ul class="bulletList"><li>Managed inventory and shipping/receiving of electronic equipment, reducing shrinkage through tighter tracking and process controls.</li><li>Provided technical support for demo devices and assisted in the deployment of new hardware.</li></ul>
+             <div class="tagRow" style="margin-top:1.25rem"><span class="pill">Asset Tracking</span><span class="pill">Hardware Deployment</span></div>
+           </article></div>
+      <div class="zigZagAside revealItem fromRight"><div>
+             <div class="cardMeta">Jun 2016 — Jul 2019</div>
+             <h3 class="cardTitle" style="margin-top:.35rem">Microsoft Corporation</h3>
+             
+           </div></div>
+      <span class="zigZagConnector" aria-hidden="true"></span>
+    </div>
+  </div>
+</section>
+<section class="pageSection" id="projects">
+  <div class="contentShell">
+    
+  <header class="sectionHeading revealItem">
+    <span class="sectionIndex">04</span>
+    <h2 class="sectionTitle">Technical Projects</h2>
+    <span class="sectionRule" aria-hidden="true"></span>
+  </header>
+    
+    <div class="zigZagBlock alignRight">
+      <div class="zigZagBody revealItem fromRight"><article class="card">
+             <h3 class="cardTitle">Upload Labs — Node Pins</h3>
+             <p class="cardSubtitle">Published Game Mod</p>
+             <p class="cardBody">A gameplay mod for the Steam title Upload Labs, built on the Godot Mod Loader and shipped to the Steam Workshop. Adds pinnable, fully interactive live views of off-screen nodes, unlocked through the game’s own upgrade economy.</p>
+             <ul class="bulletList"><li>Renders live views of distant nodes through SubViewports that share the game world, remapping every click and connection-drag back through each pin’s camera into world space so the pinned node stays genuinely interactive.</li><li>Extends the game’s scripts rather than patching scene files, so installing and uninstalling never touches game data and saves stay loadable in both directions.</li><li>Diagnosed a packaging failure where PowerShell’s Compress-Archive writes backslash paths that Godot’s ZIP reader cannot resolve; wrote a build script emitting forward-slash entries to produce loader-compatible archives.</li><li>Published to the Steam Workshop and as versioned GitHub releases, with player-facing installation and configuration docs.</li></ul>
+             <div class="projectLinks">
+                      <a class="buttonGhost" href="https://github.com/tailored-data/upload-labs-node-pins" target="_blank" rel="noreferrer noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.7A5.2 5.2 0 0 0 19.9 5a4.9 4.9 0 0 0-.1-3.6s-1.1-.3-3.7 1.4a12.7 12.7 0 0 0-6.6 0C6.9 1.1 5.8 1.4 5.8 1.4A4.9 4.9 0 0 0 5.7 5a5.2 5.2 0 0 0-1.4 3.6c0 5.2 3.2 6.4 6.2 6.7a3.4 3.4 0 0 0-.9 2.6V22"/></svg> View source</a>
+                      <a class="buttonGhost" href="https://steamcommunity.com/sharedfiles/filedetails/?id=3760233672" target="_blank" rel="noreferrer noopener">Steam Workshop <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+                      
+                    </div>
+           </article></div>
+      <div class="zigZagAside revealItem fromLeft"><div>
+             <div class="cardMeta">Published Game Mod</div>
+             <div class="statValue" style="margin-top:.35rem">01</div>
+             <span class="credentialBadge" style="margin-top:.6rem">Featured</span>
+             <div class="tagRow" style="margin-top:.75rem"><span class="pill">GDScript</span><span class="pill">Godot 4</span><span class="pill">Godot Mod Loader</span><span class="pill">Steam Workshop</span></div>
+           </div></div>
+      <span class="zigZagConnector" aria-hidden="true"></span>
+    </div>
+    <div class="zigZagBlock alignLeft">
+      <div class="zigZagBody revealItem fromLeft"><article class="card">
+             <h3 class="cardTitle">TDRemoteAssist</h3>
+             <p class="cardSubtitle">Remote Desktop Application</p>
+             <p class="cardBody">A commercial-grade remote desktop control application built from scratch on a networked Agent/Client architecture over raw TCP.</p>
+             <ul class="bulletList"><li>Designed a custom magic-number message framing protocol to eliminate stream-deserialization failures across the socket boundary.</li><li>Separated agent and client responsibilities so the same transport layer serves both ends of the connection.</li></ul>
+             <div class="projectLinks">
+                      
+                      
+                      <span class="sourceNote">Source available on request</span>
+                    </div>
+           </article></div>
+      <div class="zigZagAside revealItem fromRight"><div>
+             <div class="cardMeta">Remote Desktop Application</div>
+             <div class="statValue" style="margin-top:.35rem">02</div>
+             
+             <div class="tagRow" style="margin-top:.75rem"><span class="pill">C#</span><span class="pill">.NET 8</span><span class="pill">TCP/IP</span><span class="pill">WinForms</span></div>
+           </div></div>
+      <span class="zigZagConnector" aria-hidden="true"></span>
+    </div>
+    <div class="zigZagBlock alignRight">
+      <div class="zigZagBody revealItem fromRight"><article class="card">
+             <h3 class="cardTitle">Local AI Inference Platform</h3>
+             <p class="cardSubtitle">Self-Hosted LLM Infrastructure</p>
+             <p class="cardBody">A self-hosted large language model stack running on Windows, with GPU acceleration passed through to a Linux container runtime.</p>
+             <ul class="bulletList"><li>Hardened the deployment with LAN isolation and loopback-only firewall binding so no inference endpoint is externally reachable.</li><li>Tuned quantized model selection against GPU VRAM constraints to maximize throughput on available hardware.</li></ul>
+             
+           </article></div>
+      <div class="zigZagAside revealItem fromLeft"><div>
+             <div class="cardMeta">Self-Hosted LLM Infrastructure</div>
+             <div class="statValue" style="margin-top:.35rem">03</div>
+             
+             <div class="tagRow" style="margin-top:.75rem"><span class="pill">Ollama</span><span class="pill">Docker</span><span class="pill">WSL2</span><span class="pill">GPU Passthrough</span></div>
+           </div></div>
+      <span class="zigZagConnector" aria-hidden="true"></span>
+    </div>
+    <div class="zigZagBlock alignLeft">
+      <div class="zigZagBody revealItem fromLeft"><article class="card">
+             <h3 class="cardTitle">RuneLite Plugin</h3>
+             <p class="cardSubtitle">Open-Source Contribution</p>
+             <p class="cardBody">Authored and published a game-client plugin through the open-source RuneLite ecosystem, taking it from local build to public release.</p>
+             <ul class="bulletList"><li>Diagnosed and resolved Gradle build and resource-packaging issues blocking the release.</li><li>Navigated an external maintainer review process to ship to production users.</li></ul>
+             <div class="projectLinks">
+                      
+                      
+                      <span class="sourceNote">Source available on request</span>
+                    </div>
+           </article></div>
+      <div class="zigZagAside revealItem fromRight"><div>
+             <div class="cardMeta">Open-Source Contribution</div>
+             <div class="statValue" style="margin-top:.35rem">04</div>
+             
+             <div class="tagRow" style="margin-top:.75rem"><span class="pill">Java</span><span class="pill">Gradle</span><span class="pill">Open Source</span></div>
+           </div></div>
+      <span class="zigZagConnector" aria-hidden="true"></span>
+    </div>
+  </div>
+</section>
+<section class="pageSection" id="credentials">
+  <div class="contentShell">
+    
+  <header class="sectionHeading revealItem">
+    <span class="sectionIndex">05</span>
+    <h2 class="sectionTitle">Education &amp; Certifications</h2>
+    <span class="sectionRule" aria-hidden="true"></span>
+  </header>
+    <div class="credentialGrid">
+      
+  <article class="card revealItem">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem">
+      <h3 class="cardTitle">B.A.Sc., Information Management</h3>
+      <span class="credentialBadge">Certified</span>
+    </div>
+    <p class="cardSubtitle">Palm Beach State College</p>
+    <p class="cardBody">Database Administration &amp; Data Analytics — CIP Code 11.1005</p>
+    <p class="cardMeta" style="margin-top:1rem">2023</p>
+  </article>
+      
+  <article class="card revealItem">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem">
+      <h3 class="cardTitle">Microsoft Certified: Azure Fundamentals</h3>
+      <span class="credentialBadge">Certified</span>
+    </div>
+    <p class="cardSubtitle">Microsoft</p>
+    <p class="cardBody">Cloud concepts, Azure services, security, and governance.</p>
+    <p class="cardMeta" style="margin-top:1rem">AZ-900</p>
+  </article>
+    </div>
+  </div>
+</section>
+<section class="pageSection" id="contact">
+  <div class="contentShell">
+    
+  <header class="sectionHeading revealItem">
+    <span class="sectionIndex">06</span>
+    <h2 class="sectionTitle">Get In Touch</h2>
+    <span class="sectionRule" aria-hidden="true"></span>
+  </header>
+    <div class="contactGrid">
+      <div class="revealItem fromLeft">
+        <p class="aboutLead">Open to roles in database engineering, data analytics, and .NET development — and always happy to talk shop.</p>
+        <p class="aboutBody" style="margin-top:.75rem">Send a message and my full résumé becomes available to download right here.</p>
+        <div class="contactChannels">
+          <a class="contactChannel" href="mailto:taylorburks@me.com"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg><span>taylorburks@me.com</span></a><a class="contactChannel" href="https://www.linkedin.com/in/taylor-burks/" target="_blank" rel="noreferrer noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-13h4v1.8A6 6 0 0 1 16 8z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg><span>linkedin.com/in/taylor-burks</span></a>
+        </div>
+      </div>
+      <form class="contactForm revealItem fromRight" id="contactForm" data-endpoint="https://formspree.io/f/meajeerp">
+        <div class="formField"><label class="formLabel" for="contactName">Name</label><input class="formInput" id="contactName" name="name" type="text" required autocomplete="name" placeholder="Your name"></div>
+        <div class="formField"><label class="formLabel" for="contactEmail">Email</label><input class="formInput" id="contactEmail" name="email" type="email" required autocomplete="email" placeholder="you@company.com"></div>
+        <div class="formField"><label class="formLabel" for="contactMessage">Message</label><textarea class="formTextarea" id="contactMessage" name="message" required placeholder="What would you like to talk about?"></textarea></div>
+        <div aria-live="polite" id="contactStatus"></div>
+        <button class="buttonPrimary" type="submit" style="justify-self:start">Send message <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        
+      </form>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="siteFooter">
+  <div class="contentShell siteFooterInner">
+    <span>© 2026 Taylor Burks · Built with React &amp; Vite</span>
+    <nav class="footerLinks" aria-label="Footer links">
+      <a href="https://www.linkedin.com/in/taylor-burks/" target="_blank" rel="noreferrer noopener">LinkedIn</a>
+      <a href="https://github.com/tailored-data" target="_blank" rel="noreferrer noopener">GitHub</a>
+      <a href="mailto:taylorburks@me.com">Email</a>
+      <a href="#top">Back to top</a>
+    </nav>
+  </div>
+</footer>
+<script>
+
+(function () {
+  var sunIcon = "<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4\"/></svg>";
+  var moonIcon = "<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z\"/></svg>";
+  var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // --- reveal on scroll (useRevealOnScroll) ---
+  var revealTargets = Array.prototype.slice.call(document.querySelectorAll('.revealItem'));
+  if (prefersReducedMotion) {
+    revealTargets.forEach(function (el) { el.classList.add('isVisible'); });
+  } else {
+    document.querySelectorAll('.pageSection, .heroSection').forEach(function (section) {
+      var items = Array.prototype.slice.call(section.querySelectorAll('.revealItem'));
+      items.forEach(function (el, i) {
+        el.style.setProperty('--revealDelay', Math.min(i, 6) * 80 + 'ms');
+      });
+    });
+    var revealObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('isVisible');
+        revealObserver.unobserve(entry.target);
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -10% 0px' });
+    revealTargets.forEach(function (el) { revealObserver.observe(el); });
+    // Hero is already on screen; reveal it on a timer instead.
+    setTimeout(function () {
+      document.querySelectorAll('.heroSection .revealItem').forEach(function (el, i) {
+        el.style.setProperty('--revealDelay', i * 90 + 'ms');
+        el.classList.add('isVisible');
+      });
+    }, 90);
+  }
+
+  // --- scroll progress (useScrollProgress) + header state ---
+  var railFill = document.getElementById('progressRailFill');
+  var siteHeader = document.getElementById('siteHeader');
+  var isTicking = false;
+  function measureProgress() {
+    var scrollable = document.documentElement.scrollHeight - window.innerHeight;
+    var progress = scrollable <= 0 ? 0 : Math.min(100, Math.max(0, (window.scrollY / scrollable) * 100));
+    if (railFill) railFill.style.height = progress + '%';
+    if (siteHeader) siteHeader.classList.toggle('isScrolled', window.scrollY > 40);
+    isTicking = false;
+  }
+  function onScroll() {
+    if (isTicking) return;
+    isTicking = true;
+    window.requestAnimationFrame(measureProgress);
+  }
+  measureProgress();
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+
+  // --- active section (useActiveSection) ---
+  var sectionIds = ["about","skills","experience","projects","credentials","contact"];
+  var sectionObserver = new IntersectionObserver(function (entries) {
+    var visible = entries.filter(function (e) { return e.isIntersecting; })[0];
+    if (!visible) return;
+    var activeId = visible.target.id;
+    document.querySelectorAll('[data-navFor]').forEach(function (link) {
+      link.classList.toggle('isActive', link.getAttribute('data-navFor') === activeId);
+    });
+    document.querySelectorAll('[data-markerFor]').forEach(function (marker) {
+      marker.classList.toggle('isActive', marker.getAttribute('data-markerFor') === activeId);
+    });
+  }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
+  sectionIds.forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) sectionObserver.observe(el);
+  });
+
+  // --- contact form (mirrors ContactSection.jsx) ---
+  var contactForm = document.getElementById('contactForm');
+  var contactStatus = document.getElementById('contactStatus');
+  if (contactForm && contactForm.dataset.endpoint) {
+    contactForm.addEventListener('submit', function (event) {
+      event.preventDefault();
+      var submitButton = contactForm.querySelector('button[type="submit"]');
+      submitButton.disabled = true;
+      contactStatus.innerHTML = '';
+
+      fetch(contactForm.dataset.endpoint, {
+        method: 'POST',
+        body: new FormData(contactForm),
+        headers: { Accept: 'application/json' }
+      })
+        .then(function (response) {
+          if (!response.ok) throw new Error('Form submission failed');
+          contactForm.reset();
+          // Reveal the résumé link only on a successful submission.
+          contactStatus.innerHTML =
+            '<div class="resumeUnlock">' +
+            '<p class="formStatus isSuccess">Thanks — your message is on its way.</p>' +
+            '<a class="buttonPrimary" style="margin-top:.75rem" download href="' +
+            "./TaylorBurks-Resume-f6eb4c7aebd92a8b.pdf" +
+            '">Download my résumé</a>' +
+            '</div>';
+        })
+        .catch(function () {
+          contactStatus.innerHTML =
+            '<p class="formStatus isError">Something went wrong. Email me directly at ' +
+            "taylorburks@me.com" +
+            '.</p>';
+        })
+        .then(function () {
+          submitButton.disabled = false;
+        });
+    });
+  }
+
+  // --- theme toggle (useThemeController) ---
+  var themeToggle = document.getElementById('themeToggle');
+  function syncToggleIcon() {
+    var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if (themeToggle) themeToggle.innerHTML = isDark ? sunIcon : moonIcon;
+  }
+  syncToggleIcon();
+  if (themeToggle) {
+    themeToggle.addEventListener('click', function () {
+      var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      try { localStorage.setItem('portfolioTheme', next); } catch (e) {}
+      syncToggleIcon();
+    });
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark light" />
+
+    <title>Taylor Burks — Database &amp; Software Engineering</title>
+    <meta
+      name="description"
+      content="Taylor Burks — Information Management professional working across database administration, data analytics, and C#/.NET software engineering."
+    />
+
+    <!-- Open Graph: controls how the link previews when shared on LinkedIn, Slack, iMessage, etc. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Taylor Burks — Database &amp; Software Engineering" />
+    <meta
+      property="og:description"
+      content="SQL, Power BI, and C#/.NET. Data pipelines and reporting through to networked desktop applications and containerized infrastructure."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <!--
+      Applied before first paint so a saved light-mode preference never
+      flashes navy first. Inline on purpose: a separate file would load
+      too late to prevent the flash.
+    -->
+    <script>
+      (function applyStoredTheme() {
+        try {
+          var storedTheme = localStorage.getItem('portfolioTheme');
+          var prefersLight =
+            window.matchMedia &&
+            window.matchMedia('(prefers-color-scheme: light)').matches;
+          var activeTheme = storedTheme || (prefersLight ? 'light' : 'dark');
+          document.documentElement.setAttribute('data-theme', activeTheme);
+        } catch (error) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

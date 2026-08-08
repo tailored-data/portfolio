@@ -1,0 +1,131 @@
+/* ==========================================================================
+   Design tokens.
+
+   Every color, space, and duration on the site resolves through a variable
+   declared here. Changing the palette is a one-file edit, and the light
+   theme is just a second set of values for the same names — no component
+   anywhere knows which theme is active.
+   ========================================================================== */
+
+:root {
+  /* --- Type ------------------------------------------------------------ */
+  --fontSans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --fontMono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+
+  /* Fluid type: clamp(min, preferred, max). The vw term scales with the
+     viewport so headings shrink on phones without a single media query. */
+  --textHero: clamp(2.5rem, 7vw, 5rem);
+  --textSectionTitle: clamp(1.75rem, 4vw, 2.75rem);
+  --textCardTitle: clamp(1.15rem, 2vw, 1.4rem);
+  --textBody: clamp(1rem, 1.1vw, 1.075rem);
+  --textSmall: 0.875rem;
+  --textMicro: 0.75rem;
+
+  /* --- Space ----------------------------------------------------------- */
+  --space2xs: 0.25rem;
+  --spaceXs: 0.5rem;
+  --spaceSm: 0.875rem;
+  --spaceMd: 1.5rem;
+  --spaceLg: 2.5rem;
+  --spaceXl: 4rem;
+  --space2xl: clamp(4rem, 10vw, 8rem);
+
+  --contentMaxWidth: 1120px;
+  --gutter: clamp(1.25rem, 5vw, 3.5rem);
+
+  --radiusSm: 6px;
+  --radiusMd: 12px;
+  --radiusLg: 20px;
+  --radiusPill: 999px;
+
+  /* --- Motion ---------------------------------------------------------- */
+  --durationFast: 180ms;
+  --durationBase: 420ms;
+  --durationSlow: 900ms;
+  /* Decelerating curve: fast start, soft landing. Reads as "arriving"
+     rather than "sliding", which is what makes reveals feel calm. */
+  --easeOut: cubic-bezier(0.16, 1, 0.3, 1);
+  --easeInOut: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* --------------------------------------------------------------------------
+   DARK THEME (default)
+
+   Color psychology, deliberately:
+   - Deep navy base: stability, competence, trust. The conventional palette
+     for data and infrastructure work, which is exactly the read we want.
+   - Exactly ONE saturated hue (cyan) across the entire page. Because
+     nothing else competes for attention, anything cyan is involuntarily
+     read as "the next thing" — that is the mechanism doing the eye-guiding.
+   - Everything else is a desaturated navy-tinted neutral so the accent
+     never has to fight for contrast.
+   -------------------------------------------------------------------------- */
+[data-theme='dark'] {
+  --colorBackground: #070f18;
+  --colorSurface: #0b1b2b;
+  --colorSurfaceRaised: #10243a;
+  --colorSurfaceGlass: rgba(16, 36, 58, 0.72);
+
+  --colorTextPrimary: #eaf2fb;
+  --colorTextSecondary: #9db2c9;
+  /* Lifted from #63798f: muted text is used at 12–14px, which needs the
+     full 4.5:1 AA ratio, not the 3:1 large-text allowance. */
+  --colorTextMuted: #7089a0;
+
+  --colorAccent: #22d3ee;
+  --colorAccentSoft: rgba(34, 211, 238, 0.14);
+  --colorAccentGlow: rgba(34, 211, 238, 0.34);
+
+  --colorBorder: rgba(157, 178, 201, 0.16);
+  --colorBorderStrong: rgba(157, 178, 201, 0.3);
+
+  --colorRailTrack: rgba(157, 178, 201, 0.14);
+
+  --shadowCard: 0 18px 46px -24px rgba(0, 0, 0, 0.85);
+  --shadowLifted: 0 26px 60px -28px rgba(0, 0, 0, 0.95);
+
+  /* Slow radial washes behind the hero. Gives depth without an image
+     request, and keeps the page a single lightweight HTML payload. */
+  --heroWash:
+    radial-gradient(60rem 40rem at 82% -12%, rgba(34, 211, 238, 0.16), transparent 62%),
+    radial-gradient(45rem 32rem at 4% 8%, rgba(56, 118, 189, 0.14), transparent 60%);
+
+  color-scheme: dark;
+}
+
+/* --------------------------------------------------------------------------
+   LIGHT THEME
+
+   Same token names, re-valued. The accent darkens to #0e7490 because the
+   bright cyan that carries 12:1 contrast on navy would only manage ~1.8:1
+   on white — well under the 4.5:1 WCAG AA floor for body text.
+   -------------------------------------------------------------------------- */
+[data-theme='light'] {
+  --colorBackground: #f6f9fc;
+  --colorSurface: #ffffff;
+  --colorSurfaceRaised: #ffffff;
+  --colorSurfaceGlass: rgba(255, 255, 255, 0.82);
+
+  --colorTextPrimary: #0b1b2b;
+  --colorTextSecondary: #47617a;
+  /* Darkened from #7c93a8 for the same reason as the dark theme. */
+  --colorTextMuted: #5a7082;
+
+  --colorAccent: #0e7490;
+  --colorAccentSoft: rgba(14, 116, 144, 0.1);
+  --colorAccentGlow: rgba(14, 116, 144, 0.22);
+
+  --colorBorder: rgba(11, 27, 43, 0.12);
+  --colorBorderStrong: rgba(11, 27, 43, 0.22);
+
+  --colorRailTrack: rgba(11, 27, 43, 0.1);
+
+  --shadowCard: 0 16px 40px -26px rgba(11, 27, 43, 0.4);
+  --shadowLifted: 0 24px 54px -26px rgba(11, 27, 43, 0.32);
+
+  --heroWash:
+    radial-gradient(60rem 40rem at 82% -12%, rgba(14, 116, 144, 0.12), transparent 62%),
+    radial-gradient(45rem 32rem at 4% 8%, rgba(56, 118, 189, 0.1), transparent 60%);
+
+  color-scheme: light;
+}

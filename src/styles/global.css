@@ -1,0 +1,1097 @@
+@import './theme.css';
+
+/* ==========================================================================
+   1. RESET & BASE
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Anchor targets stop below the fixed header instead of under it. */
+  scroll-padding-top: 6rem;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--fontSans);
+  font-size: var(--textBody);
+  line-height: 1.65;
+  color: var(--colorTextPrimary);
+  background-color: var(--colorBackground);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  transition:
+    background-color var(--durationBase) var(--easeInOut),
+    color var(--durationBase) var(--easeInOut);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  line-height: 1.15;
+  letter-spacing: -0.022em;
+  font-weight: 700;
+}
+
+p {
+  margin: 0;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+/* Visible focus for keyboard users only — :focus-visible excludes mouse
+   clicks, so the ring appears when it's actually navigational. */
+:focus-visible {
+  outline: 2px solid var(--colorAccent);
+  outline-offset: 3px;
+  border-radius: var(--radiusSm);
+}
+
+.skipLink {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 200;
+  padding: var(--spaceSm) var(--spaceMd);
+  background: var(--colorAccent);
+  color: #04121b;
+  font-weight: 600;
+  border-radius: 0 0 var(--radiusMd) 0;
+}
+
+.skipLink:focus {
+  left: 0;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ==========================================================================
+   2. LAYOUT PRIMITIVES
+   ========================================================================== */
+
+.contentShell {
+  width: 100%;
+  max-width: var(--contentMaxWidth);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.pageSection {
+  position: relative;
+  padding-block: var(--space2xl);
+}
+
+.sectionHeading {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spaceMd);
+  margin-bottom: var(--spaceXl);
+}
+
+.sectionIndex {
+  font-family: var(--fontMono);
+  font-size: var(--textSmall);
+  color: var(--colorAccent);
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+
+.sectionTitle {
+  font-size: var(--textSectionTitle);
+}
+
+/* The hairline runs from the title toward the right margin. It has no
+   semantic job — it exists to extend the eye's travel horizontally so the
+   gaze finishes each heading pointed at the content beneath it. */
+.sectionRule {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--colorBorderStrong), transparent);
+  align-self: center;
+}
+
+/* ==========================================================================
+   3. SCROLL REVEAL
+
+   Elements start slightly offset and transparent, then transition in when
+   the IntersectionObserver adds .isVisible. Transform + opacity only:
+   both are GPU-composited, so this never triggers layout and stays at
+   60fps even with every section mounted.
+   ========================================================================== */
+
+.revealItem {
+  opacity: 0;
+  transform: translate3d(0, 26px, 0);
+  transition:
+    opacity var(--durationSlow) var(--easeOut),
+    transform var(--durationSlow) var(--easeOut);
+  transition-delay: var(--revealDelay, 0ms);
+  will-change: opacity, transform;
+}
+
+.revealItem.fromLeft {
+  transform: translate3d(-34px, 14px, 0);
+}
+
+.revealItem.fromRight {
+  transform: translate3d(34px, 14px, 0);
+}
+
+.revealItem.isVisible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+/* ==========================================================================
+   4. PROGRESS RAIL
+
+   Fixed to the left edge. The fill height is driven by a CSS variable that
+   React updates from scroll position, so the user always has a peripheral
+   read on how far through the page they are.
+   ========================================================================== */
+
+.progressRail {
+  position: fixed;
+  left: clamp(0.75rem, 2.2vw, 1.75rem);
+  top: 22vh;
+  bottom: 14vh;
+  width: 2px;
+  background: var(--colorRailTrack);
+  border-radius: var(--radiusPill);
+  z-index: 40;
+  pointer-events: none;
+}
+
+.progressRailFill {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: var(--scrollProgress, 0%);
+  background: linear-gradient(180deg, var(--colorAccent), var(--colorAccentGlow));
+  border-radius: var(--radiusPill);
+  box-shadow: 0 0 14px var(--colorAccentGlow);
+  transition: height 120ms linear;
+}
+
+/* Dot markers sit at each section's position along the rail. The active
+   one scales up and lights, giving a second, non-textual "you are here". */
+.progressRailMarker {
+  position: absolute;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  margin-left: -3.5px;
+  border-radius: 50%;
+  background: var(--colorBackground);
+  border: 1.5px solid var(--colorBorderStrong);
+  transform: translateY(-50%) scale(1);
+  transition:
+    transform var(--durationFast) var(--easeOut),
+    background-color var(--durationFast) var(--easeOut),
+    border-color var(--durationFast) var(--easeOut);
+}
+
+.progressRailMarker.isActive {
+  background: var(--colorAccent);
+  border-color: var(--colorAccent);
+  transform: translateY(-50%) scale(1.55);
+  box-shadow: 0 0 12px var(--colorAccentGlow);
+}
+
+@media (max-width: 900px) {
+  .progressRail {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   5. HEADER
+   ========================================================================== */
+
+.siteHeader {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  z-index: 100;
+  transition:
+    background-color var(--durationBase) var(--easeInOut),
+    border-color var(--durationBase) var(--easeInOut),
+    backdrop-filter var(--durationBase) var(--easeInOut);
+  border-bottom: 1px solid transparent;
+}
+
+.siteHeader.isScrolled {
+  background: var(--colorSurfaceGlass);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  border-bottom-color: var(--colorBorder);
+}
+
+.siteHeaderInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spaceMd);
+  height: 4.5rem;
+}
+
+.headerMark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spaceXs);
+  font-family: var(--fontMono);
+  font-weight: 500;
+  font-size: var(--textSmall);
+  letter-spacing: 0.14em;
+}
+
+.headerMarkInitials {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radiusSm);
+  background: var(--colorAccentSoft);
+  color: var(--colorAccent);
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.headerNav {
+  display: flex;
+  align-items: center;
+  gap: var(--spaceXs);
+}
+
+.headerNavLink {
+  position: relative;
+  padding: var(--space2xs) var(--spaceSm);
+  font-size: var(--textSmall);
+  color: var(--colorTextSecondary);
+  border-radius: var(--radiusSm);
+  transition: color var(--durationFast) var(--easeOut);
+}
+
+.headerNavLink::after {
+  content: '';
+  position: absolute;
+  left: var(--spaceSm);
+  right: var(--spaceSm);
+  bottom: 2px;
+  height: 1.5px;
+  background: var(--colorAccent);
+  border-radius: var(--radiusPill);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--durationBase) var(--easeOut);
+}
+
+.headerNavLink:hover,
+.headerNavLink.isActive {
+  color: var(--colorTextPrimary);
+}
+
+.headerNavLink.isActive::after,
+.headerNavLink:hover::after {
+  transform: scaleX(1);
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spaceXs);
+}
+
+.iconButton {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radiusSm);
+  color: var(--colorTextSecondary);
+  border: 1px solid transparent;
+  transition:
+    color var(--durationFast) var(--easeOut),
+    border-color var(--durationFast) var(--easeOut),
+    background-color var(--durationFast) var(--easeOut);
+}
+
+.iconButton:hover {
+  color: var(--colorAccent);
+  border-color: var(--colorBorder);
+  background: var(--colorAccentSoft);
+}
+
+@media (max-width: 780px) {
+  .headerNav {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   6. HERO
+   ========================================================================== */
+
+.heroSection {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  padding-block: 8rem var(--spaceXl);
+  background-image: var(--heroWash);
+  overflow: hidden;
+}
+
+.heroEyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spaceXs);
+  font-family: var(--fontMono);
+  font-size: var(--textSmall);
+  color: var(--colorAccent);
+  margin-bottom: var(--spaceMd);
+}
+
+.heroStatusDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--colorAccent);
+  box-shadow: 0 0 0 0 var(--colorAccentGlow);
+  animation: statusPulse 2.6s var(--easeInOut) infinite;
+}
+
+@keyframes statusPulse {
+  0% {
+    box-shadow: 0 0 0 0 var(--colorAccentGlow);
+  }
+  70% {
+    box-shadow: 0 0 0 9px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+.heroName {
+  font-size: var(--textHero);
+  max-width: 16ch;
+  margin-bottom: var(--spaceMd);
+}
+
+.heroNameAccent {
+  color: var(--colorAccent);
+}
+
+.heroHeadline {
+  font-size: clamp(1.1rem, 2.4vw, 1.5rem);
+  color: var(--colorTextSecondary);
+  max-width: 46ch;
+  margin-bottom: var(--spaceLg);
+  font-weight: 400;
+}
+
+.heroDisciplines {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spaceXs);
+  margin-bottom: var(--spaceLg);
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spaceSm);
+  margin-bottom: var(--spaceXl);
+}
+
+.heroMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spaceMd);
+  font-family: var(--fontMono);
+  font-size: var(--textSmall);
+  color: var(--colorTextMuted);
+}
+
+/* Scroll cue: the single most important eye-guide on the page. It sits at
+   the bottom of the first viewport and animates downward, resolving the
+   "what now?" moment before the user has to ask it. */
+.scrollCue {
+  position: absolute;
+  left: 50%;
+  bottom: var(--spaceLg);
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spaceXs);
+  font-family: var(--fontMono);
+  font-size: var(--textMicro);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--colorTextMuted);
+}
+
+.scrollCueTrack {
+  width: 1px;
+  height: 3rem;
+  background: var(--colorRailTrack);
+  position: relative;
+  overflow: hidden;
+}
+
+.scrollCueTrack::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: -50%;
+  height: 50%;
+  background: linear-gradient(180deg, transparent, var(--colorAccent));
+  animation: cueDescend 2.1s var(--easeInOut) infinite;
+}
+
+@keyframes cueDescend {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(300%);
+  }
+}
+
+/* ==========================================================================
+   7. BUTTONS, PILLS, TAGS
+   ========================================================================== */
+
+.buttonPrimary,
+.buttonGhost {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spaceXs);
+  padding: 0.7rem 1.35rem;
+  border-radius: var(--radiusPill);
+  font-size: var(--textSmall);
+  font-weight: 600;
+  transition:
+    transform var(--durationFast) var(--easeOut),
+    box-shadow var(--durationFast) var(--easeOut),
+    background-color var(--durationFast) var(--easeOut),
+    border-color var(--durationFast) var(--easeOut);
+}
+
+.buttonPrimary {
+  background: var(--colorAccent);
+  color: #04121b;
+  box-shadow: 0 10px 30px -12px var(--colorAccentGlow);
+}
+
+.buttonPrimary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 38px -12px var(--colorAccentGlow);
+}
+
+.buttonGhost {
+  border: 1px solid var(--colorBorderStrong);
+  color: var(--colorTextPrimary);
+}
+
+.buttonGhost:hover {
+  border-color: var(--colorAccent);
+  color: var(--colorAccent);
+  background: var(--colorAccentSoft);
+  transform: translateY(-2px);
+}
+
+.buttonPrimary:disabled,
+.buttonGhost:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.8rem;
+  border-radius: var(--radiusPill);
+  border: 1px solid var(--colorBorder);
+  background: var(--colorAccentSoft);
+  color: var(--colorTextSecondary);
+  font-size: var(--textMicro);
+  font-family: var(--fontMono);
+  letter-spacing: 0.04em;
+}
+
+.tagRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spaceXs);
+}
+
+/* ==========================================================================
+   8. ZIG-ZAG BLOCKS
+
+   The core eye-flow mechanism. Blocks alternate which side of the grid
+   they occupy, so the reading path traces a Z down the page. Each block's
+   endpoint sits diagonally adjacent to the next one's entry point, which
+   means the eye is already moving in the right direction when the next
+   block arrives. No conscious decision required.
+   ========================================================================== */
+
+.zigZagBlock {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  align-items: center;
+  gap: var(--spaceLg);
+  margin-bottom: var(--space2xl);
+  position: relative;
+}
+
+.zigZagBlock:last-child {
+  margin-bottom: 0;
+}
+
+.zigZagBlock.alignLeft .zigZagBody {
+  grid-column: 1 / span 7;
+}
+
+.zigZagBlock.alignLeft .zigZagAside {
+  grid-column: 9 / span 4;
+}
+
+.zigZagBlock.alignRight .zigZagBody {
+  grid-column: 6 / span 7;
+  order: 2;
+}
+
+.zigZagBlock.alignRight .zigZagAside {
+  grid-column: 1 / span 4;
+  order: 1;
+  text-align: right;
+}
+
+/* Faint connector arc between consecutive blocks. Subliminal, but it gives
+   the gaze a physical path to follow instead of a jump across whitespace. */
+.zigZagConnector {
+  position: absolute;
+  bottom: calc(var(--space2xl) * -0.62);
+  width: 42%;
+  height: calc(var(--space2xl) * 0.75);
+  border-color: var(--colorBorder);
+  border-style: solid;
+  border-width: 0;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+.zigZagBlock.alignLeft .zigZagConnector {
+  left: 12%;
+  border-left-width: 1px;
+  border-bottom-width: 1px;
+  border-bottom-left-radius: var(--radiusLg);
+}
+
+.zigZagBlock.alignRight .zigZagConnector {
+  right: 12%;
+  border-right-width: 1px;
+  border-bottom-width: 1px;
+  border-bottom-right-radius: var(--radiusLg);
+}
+
+.zigZagBlock:last-child .zigZagConnector {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .zigZagBlock,
+  .zigZagBlock.alignLeft,
+  .zigZagBlock.alignRight {
+    grid-template-columns: 1fr;
+    gap: var(--spaceMd);
+    margin-bottom: var(--spaceXl);
+  }
+
+  .zigZagBlock.alignLeft .zigZagBody,
+  .zigZagBlock.alignRight .zigZagBody,
+  .zigZagBlock.alignLeft .zigZagAside,
+  .zigZagBlock.alignRight .zigZagAside {
+    grid-column: 1 / -1;
+    order: initial;
+    text-align: left;
+  }
+
+  .zigZagBlock.alignRight .zigZagBody {
+    order: 2;
+  }
+
+  .zigZagBlock.alignRight .zigZagAside {
+    order: 1;
+  }
+
+  .zigZagConnector {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   9. CARDS
+   ========================================================================== */
+
+.card {
+  position: relative;
+  padding: var(--spaceLg);
+  border-radius: var(--radiusLg);
+  background: var(--colorSurface);
+  border: 1px solid var(--colorBorder);
+  box-shadow: var(--shadowCard);
+  transition:
+    transform var(--durationBase) var(--easeOut),
+    border-color var(--durationBase) var(--easeOut),
+    box-shadow var(--durationBase) var(--easeOut);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  border-color: var(--colorBorderStrong);
+  box-shadow: var(--shadowLifted);
+}
+
+/* Accent bar on the leading edge, revealed on hover. Confirms the card is
+   the active object without changing its size or shifting the layout. */
+.card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: var(--spaceLg);
+  bottom: var(--spaceLg);
+  width: 2px;
+  border-radius: var(--radiusPill);
+  background: var(--colorAccent);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform var(--durationBase) var(--easeOut);
+}
+
+.card:hover::before {
+  transform: scaleY(1);
+}
+
+.cardTitle {
+  font-size: var(--textCardTitle);
+  margin-bottom: var(--space2xs);
+}
+
+.cardSubtitle {
+  color: var(--colorAccent);
+  font-size: var(--textSmall);
+  font-weight: 600;
+  margin-bottom: var(--spaceSm);
+}
+
+.cardMeta {
+  font-family: var(--fontMono);
+  font-size: var(--textMicro);
+  color: var(--colorTextMuted);
+  letter-spacing: 0.05em;
+}
+
+.cardBody {
+  color: var(--colorTextSecondary);
+}
+
+.bulletList {
+  display: grid;
+  gap: var(--spaceSm);
+  margin-top: var(--spaceMd);
+}
+
+.bulletList li {
+  position: relative;
+  padding-left: 1.35rem;
+  color: var(--colorTextSecondary);
+  font-size: var(--textBody);
+}
+
+/* Row of source/live buttons at the foot of a project card. Wraps rather
+   than overflowing when a card is narrow. */
+.projectLinks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spaceSm);
+  margin-top: var(--spaceLg);
+}
+
+/* Stands in for a repo button when the source is deliberately private.
+   Styled as quiet text, not a button, so it doesn't invite a click. */
+.sourceNote {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space2xs);
+  font-family: var(--fontMono);
+  font-size: var(--textMicro);
+  letter-spacing: 0.04em;
+  color: var(--colorTextMuted);
+  padding: 0.3rem 0.7rem;
+  border-radius: var(--radiusPill);
+  border: 1px dashed var(--colorBorderStrong);
+}
+
+.bulletList li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: 1.5px solid var(--colorAccent);
+}
+
+/* ==========================================================================
+   10. SECTION-SPECIFIC
+   ========================================================================== */
+
+/* --- About --- */
+.aboutGrid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: var(--spaceXl);
+  align-items: start;
+}
+
+.aboutLead {
+  font-size: clamp(1.1rem, 2vw, 1.35rem);
+  line-height: 1.6;
+  color: var(--colorTextPrimary);
+  margin-bottom: var(--spaceMd);
+}
+
+.aboutBody {
+  color: var(--colorTextSecondary);
+}
+
+.statStack {
+  display: grid;
+  gap: var(--spaceMd);
+}
+
+.statCard {
+  padding: var(--spaceMd);
+  border-radius: var(--radiusMd);
+  border: 1px solid var(--colorBorder);
+  background: var(--colorSurface);
+}
+
+.statValue {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--colorAccent);
+  line-height: 1.2;
+}
+
+.statLabel {
+  font-size: var(--textSmall);
+  color: var(--colorTextMuted);
+}
+
+@media (max-width: 860px) {
+  .aboutGrid {
+    grid-template-columns: 1fr;
+    gap: var(--spaceLg);
+  }
+}
+
+/* --- Skills --- */
+.skillGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: var(--spaceMd);
+}
+
+.skillGroupTitle {
+  font-family: var(--fontMono);
+  font-size: var(--textSmall);
+  color: var(--colorAccent);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: var(--spaceSm);
+}
+
+.skillList {
+  display: grid;
+  gap: var(--spaceXs);
+}
+
+.skillList li {
+  color: var(--colorTextSecondary);
+  font-size: var(--textSmall);
+  display: flex;
+  align-items: center;
+  gap: var(--spaceXs);
+}
+
+.skillList li::before {
+  content: '';
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--colorAccent);
+  opacity: 0.65;
+  flex-shrink: 0;
+}
+
+/* --- Credentials --- */
+.credentialGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  gap: var(--spaceMd);
+}
+
+.credentialBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space2xs);
+  padding: 0.2rem 0.65rem;
+  border-radius: var(--radiusPill);
+  font-size: var(--textMicro);
+  font-family: var(--fontMono);
+  border: 1px solid var(--colorAccent);
+  color: var(--colorAccent);
+  background: var(--colorAccentSoft);
+}
+
+/* --- Contact --- */
+.contactGrid {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: var(--spaceXl);
+  align-items: start;
+}
+
+.contactChannels {
+  display: grid;
+  gap: var(--spaceSm);
+  margin-top: var(--spaceLg);
+}
+
+.contactChannel {
+  display: flex;
+  align-items: center;
+  gap: var(--spaceSm);
+  padding: var(--spaceSm) var(--spaceMd);
+  border-radius: var(--radiusMd);
+  border: 1px solid var(--colorBorder);
+  color: var(--colorTextSecondary);
+  transition:
+    border-color var(--durationFast) var(--easeOut),
+    color var(--durationFast) var(--easeOut),
+    transform var(--durationFast) var(--easeOut);
+}
+
+.contactChannel:hover {
+  border-color: var(--colorAccent);
+  color: var(--colorTextPrimary);
+  transform: translateX(4px);
+}
+
+.contactForm {
+  display: grid;
+  gap: var(--spaceMd);
+  padding: var(--spaceLg);
+  border-radius: var(--radiusLg);
+  border: 1px solid var(--colorBorder);
+  background: var(--colorSurface);
+  box-shadow: var(--shadowCard);
+}
+
+.formField {
+  display: grid;
+  gap: var(--space2xs);
+}
+
+.formLabel {
+  font-size: var(--textMicro);
+  font-family: var(--fontMono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--colorTextMuted);
+}
+
+.formInput,
+.formTextarea {
+  width: 100%;
+  padding: 0.75rem 0.95rem;
+  border-radius: var(--radiusMd);
+  border: 1px solid var(--colorBorder);
+  background: var(--colorBackground);
+  color: var(--colorTextPrimary);
+  font-family: inherit;
+  font-size: var(--textSmall);
+  transition:
+    border-color var(--durationFast) var(--easeOut),
+    box-shadow var(--durationFast) var(--easeOut);
+}
+
+.formTextarea {
+  resize: vertical;
+  min-height: 8rem;
+}
+
+.formInput:focus,
+.formTextarea:focus {
+  outline: none;
+  border-color: var(--colorAccent);
+  box-shadow: 0 0 0 3px var(--colorAccentSoft);
+}
+
+.formStatus {
+  font-size: var(--textSmall);
+  padding: var(--spaceXs) var(--spaceSm);
+  border-radius: var(--radiusSm);
+}
+
+.formStatus.isSuccess {
+  color: var(--colorAccent);
+  background: var(--colorAccentSoft);
+}
+
+.formStatus.isError {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.12);
+}
+
+/* Revealed only after a successful submission. Animated in so the reward
+   for filling the form is obvious rather than something to hunt for. */
+.resumeUnlock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  animation: unlockFadeIn var(--durationBase) var(--easeOut) both;
+}
+
+@keyframes unlockFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.formHint {
+  font-size: var(--textMicro);
+  color: var(--colorTextMuted);
+}
+
+@media (max-width: 860px) {
+  .contactGrid {
+    grid-template-columns: 1fr;
+    gap: var(--spaceLg);
+  }
+}
+
+/* --- Footer --- */
+.siteFooter {
+  border-top: 1px solid var(--colorBorder);
+  padding-block: var(--spaceLg);
+  margin-top: var(--spaceXl);
+}
+
+.siteFooterInner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spaceMd);
+  font-size: var(--textSmall);
+  color: var(--colorTextMuted);
+}
+
+.footerLinks {
+  display: flex;
+  gap: var(--spaceMd);
+}
+
+.footerLinks a {
+  transition: color var(--durationFast) var(--easeOut);
+}
+
+.footerLinks a:hover {
+  color: var(--colorAccent);
+}
+
+/* ==========================================================================
+   11. REDUCED MOTION
+
+   Users with a vestibular-motion sensitivity setting get the full content
+   with none of the movement. Everything is forced to its final state
+   rather than hidden, so nothing becomes unreachable.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .revealItem,
+  .revealItem.fromLeft,
+  .revealItem.fromRight {
+    opacity: 1;
+    transform: none;
+  }
+
+  .card:hover,
+  .buttonPrimary:hover,
+  .buttonGhost:hover,
+  .contactChannel:hover {
+    transform: none;
+  }
+}
