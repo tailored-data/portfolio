@@ -10,6 +10,7 @@ import { AboutSection } from './components/AboutSection.jsx';
 import { SkillsSection } from './components/SkillsSection.jsx';
 import { ExperienceSection } from './components/ExperienceSection.jsx';
 import { ProjectsSection } from './components/ProjectsSection.jsx';
+import { ResearchSection } from './components/ResearchSection.jsx';
 import { CredentialsSection } from './components/CredentialsSection.jsx';
 import { ContactSection } from './components/ContactSection.jsx';
 import { SiteFooter } from './components/SiteFooter.jsx';
@@ -26,6 +27,7 @@ const sectionComponentsById = {
   skills: SkillsSection,
   experience: ExperienceSection,
   projects: ProjectsSection,
+  research: ResearchSection,
   credentials: CredentialsSection,
   contact: ContactSection
 };

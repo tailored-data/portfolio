@@ -1021,6 +1021,207 @@ button {
   flex-shrink: 0;
 }
 
+/* --- Research --------------------------------------------------------- */
+
+.researchIntro {
+  max-width: 62ch;
+  color: var(--colorTextSecondary);
+  margin-bottom: var(--spaceXl);
+}
+
+.researchList {
+  display: grid;
+  gap: var(--spaceMd);
+}
+
+.researchPost {
+  border: 1px solid var(--colorBorder);
+  border-radius: var(--radiusLg);
+  background: var(--colorSurface);
+  box-shadow: var(--shadowCard);
+  transition:
+    border-color var(--durationBase) var(--easeOut),
+    box-shadow var(--durationBase) var(--easeOut);
+}
+
+.researchPost:hover {
+  border-color: var(--colorBorderStrong);
+  box-shadow: var(--shadowLifted);
+}
+
+.researchPost[open] {
+  border-color: var(--colorAccent);
+}
+
+.researchSummary {
+  padding: var(--spaceLg);
+  cursor: pointer;
+  list-style: none;
+  border-radius: var(--radiusLg);
+}
+
+/* Hide the native disclosure triangle in both engines — the custom
+   "Read →" affordance replaces it. */
+.researchSummary::-webkit-details-marker {
+  display: none;
+}
+
+.researchSummary::marker {
+  content: '';
+}
+
+.researchSummary:focus-visible {
+  outline: 2px solid var(--colorAccent);
+  outline-offset: 3px;
+}
+
+.researchMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--spaceXs);
+  font-family: var(--fontMono);
+  font-size: var(--textMicro);
+  color: var(--colorTextMuted);
+  letter-spacing: 0.05em;
+  margin-bottom: var(--spaceXs);
+}
+
+.researchDate {
+  color: var(--colorAccent);
+}
+
+.researchDot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--colorTextMuted);
+}
+
+.researchTitle {
+  font-size: var(--textCardTitle);
+  margin-bottom: var(--spaceXs);
+  max-width: 46ch;
+}
+
+.researchDek {
+  color: var(--colorTextSecondary);
+  max-width: 68ch;
+  margin-bottom: var(--spaceMd);
+}
+
+.researchFooter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spaceSm);
+}
+
+.researchToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space2xs);
+  font-size: var(--textSmall);
+  font-weight: 600;
+  color: var(--colorAccent);
+  flex-shrink: 0;
+}
+
+/* Arrow points down when collapsed, right when open — a small rotation
+   that tells you which direction the interaction goes. */
+.researchToggle svg {
+  transition: transform var(--durationBase) var(--easeOut);
+  transform: rotate(90deg);
+}
+
+.researchPost[open] .researchToggle svg {
+  transform: rotate(-90deg);
+}
+
+.researchPost[open] .researchToggle {
+  color: var(--colorTextMuted);
+}
+
+.researchBody {
+  padding: 0 var(--spaceLg) var(--spaceLg);
+  display: grid;
+  gap: var(--spaceMd);
+  border-top: 1px solid var(--colorBorder);
+  margin-top: calc(var(--spaceXs) * -1);
+  padding-top: var(--spaceLg);
+  animation: researchOpen var(--durationBase) var(--easeOut) both;
+}
+
+@keyframes researchOpen {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.researchBody p {
+  color: var(--colorTextSecondary);
+  max-width: 70ch;
+}
+
+/* The thinking-out-loud interjections. Set apart with an accent rule and
+   italics so they read as a different register from the main argument
+   rather than as ordinary body copy. */
+.researchAside {
+  border-left: 2px solid var(--colorAccent);
+  padding-left: var(--spaceMd);
+  font-style: italic;
+  color: var(--colorTextMuted) !important;
+  max-width: 60ch;
+}
+
+.researchSources {
+  margin-top: var(--spaceSm);
+  padding-top: var(--spaceMd);
+  border-top: 1px dashed var(--colorBorder);
+}
+
+.researchSourcesTitle {
+  font-family: var(--fontMono);
+  font-size: var(--textMicro);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--colorTextMuted);
+  margin-bottom: var(--spaceXs);
+}
+
+.researchSources ul {
+  display: grid;
+  gap: var(--space2xs);
+}
+
+.researchSources a {
+  color: var(--colorAccent);
+  font-size: var(--textSmall);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.researchProvenance {
+  margin-top: var(--spaceSm);
+  padding-top: var(--spaceMd);
+  border-top: 1px dashed var(--colorBorder);
+  font-size: var(--textMicro);
+  font-family: var(--fontMono);
+  color: var(--colorTextMuted) !important;
+}
+
+@media (max-width: 640px) {
+  .researchSummary,
+  .researchBody {
+    padding-inline: var(--spaceMd);
+  }
+}
+
 /* --- Credentials --- */
 .credentialGrid {
   display: grid;
@@ -1253,7 +1454,7 @@ button {
       <span>TAYLOR BURKS</span>
     </a>
     <nav class="headerNav" aria-label="Section navigation">
-      <a href="#about" class="headerNavLink" data-navFor="about">About</a><a href="#skills" class="headerNavLink" data-navFor="skills">Skills</a><a href="#experience" class="headerNavLink" data-navFor="experience">Experience</a><a href="#projects" class="headerNavLink" data-navFor="projects">Projects</a><a href="#credentials" class="headerNavLink" data-navFor="credentials">Credentials</a><a href="#contact" class="headerNavLink" data-navFor="contact">Contact</a>
+      <a href="#about" class="headerNavLink" data-navFor="about">About</a><a href="#skills" class="headerNavLink" data-navFor="skills">Skills</a><a href="#experience" class="headerNavLink" data-navFor="experience">Experience</a><a href="#projects" class="headerNavLink" data-navFor="projects">Projects</a><a href="#research" class="headerNavLink" data-navFor="research">Research</a><a href="#credentials" class="headerNavLink" data-navFor="credentials">Credentials</a><a href="#contact" class="headerNavLink" data-navFor="contact">Contact</a>
     </nav>
     <div class="headerActions">
       <a class="iconButton" href="https://github.com/tailored-data" target="_blank" rel="noreferrer noopener" aria-label="GitHub profile"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.7A5.2 5.2 0 0 0 19.9 5a4.9 4.9 0 0 0-.1-3.6s-1.1-.3-3.7 1.4a12.7 12.7 0 0 0-6.6 0C6.9 1.1 5.8 1.4 5.8 1.4A4.9 4.9 0 0 0 5.7 5a5.2 5.2 0 0 0-1.4 3.6c0 5.2 3.2 6.4 6.2 6.7a3.4 3.4 0 0 0-.9 2.6V22"/></svg></a>
@@ -1264,7 +1465,7 @@ button {
 
 <div class="progressRail" aria-hidden="true" id="progressRail">
   <div class="progressRailFill" id="progressRailFill"></div>
-  <span class="progressRailMarker" data-markerFor="about" style="top:0%"></span><span class="progressRailMarker" data-markerFor="skills" style="top:20%"></span><span class="progressRailMarker" data-markerFor="experience" style="top:40%"></span><span class="progressRailMarker" data-markerFor="projects" style="top:60%"></span><span class="progressRailMarker" data-markerFor="credentials" style="top:80%"></span><span class="progressRailMarker" data-markerFor="contact" style="top:100%"></span>
+  <span class="progressRailMarker" data-markerFor="about" style="top:0%"></span><span class="progressRailMarker" data-markerFor="skills" style="top:16.666666666666664%"></span><span class="progressRailMarker" data-markerFor="experience" style="top:33.33333333333333%"></span><span class="progressRailMarker" data-markerFor="projects" style="top:50%"></span><span class="progressRailMarker" data-markerFor="research" style="top:66.66666666666666%"></span><span class="progressRailMarker" data-markerFor="credentials" style="top:83.33333333333334%"></span><span class="progressRailMarker" data-markerFor="contact" style="top:100%"></span>
 </div>
 
 <main>
@@ -1476,11 +1677,63 @@ button {
     </div>
   </div>
 </section>
-<section class="pageSection" id="credentials">
+<section class="pageSection" id="research">
   <div class="contentShell">
     
   <header class="sectionHeading revealItem">
     <span class="sectionIndex">05</span>
+    <h2 class="sectionTitle">Research</h2>
+    <span class="sectionRule" aria-hidden="true"></span>
+  </header>
+    <p class="researchIntro revealItem">Notes on what I&rsquo;ve been reading and running — mostly databases, local model infrastructure, and what AI is doing to technical work. Updated monthly, and written the way I actually think about this stuff rather than the way a blog post is supposed to sound.</p>
+    <div class="researchList">
+      
+        <details class="researchPost revealItem">
+          <summary class="researchSummary">
+            <div class="researchMeta">
+              <span class="researchDate">August 2026</span>
+              <span class="researchDot" aria-hidden="true"></span>
+              <span>3 min read</span>
+            </div>
+            <h3 class="researchTitle">Anyone Can Download a Frontier Model. It Took Me About Four Minutes.</h3>
+            <p class="researchDek">Open-weight model hubs quietly became real infrastructure. Quantization is what made them usable on hardware people actually own — and the governance conversation has not caught up with either fact.</p>
+            <div class="researchFooter">
+              <div class="tagRow"><span class="pill">Open Weights</span><span class="pill">Quantization</span><span class="pill">Local Inference</span><span class="pill">Governance</span></div>
+              <span class="researchToggle">Read <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+            </div>
+          </summary>
+          <div class="researchBody">
+            <p>I built a self-hosted inference stack this year — Ollama on Windows, Docker under WSL2, GPU passed through to the container. The part I expected to be hard was the passthrough. The part that actually stopped me was how little friction there was in getting the models.</p><p>No account. No key. No terms-of-use checkbox. One pull command and a few gigabytes later I had a capable model running entirely on my own machine, disconnected from any vendor, answering to nobody. That is not a loophole — that is the design working exactly as intended.</p><p class="researchAside">Sat there for a second after the first response came back. Not because it was impressive. Because of how ordinary it felt.</p><p>The thing that made this possible is not the hub itself. It is quantization. A model published at full precision is essentially unusable outside a datacenter — you are looking at multiple high-end accelerators before you can load the weights, never mind run them. Quantization reduces the numeric precision of those weights, and a community of people who mostly are not paid to do this converts and republishes them at 8-bit, 5-bit, 4-bit, and lower.</p><p>The practical effect is enormous. A model that needed something like 140 GB of VRAM at full precision fits in roughly 40 GB at 4-bit. That is the difference between &quot;cloud only&quot; and &quot;runs on the GPU already in my desk.&quot; You lose some quality, and the loss is not linear — the drop from 8-bit to 5-bit is often barely perceptible for ordinary tasks, while the drop below 4-bit degrades quickly and unpredictably. Tuning the quantization level against available VRAM turned out to be the single most consequential decision in my whole setup.</p><p>So that is the infrastructure story: a distribution layer plus a volunteer conversion pipeline turned frontier research into something a person can run in a spare room. As infrastructure, it is genuinely impressive. It is also the reason independent research, reproducibility work, and safety auditing by anyone outside a handful of labs is possible at all. If the only people who can examine these systems are the people who build them, you do not really have oversight — you have press releases.</p><p>And here is where I have to be honest rather than tidy. The same absence of a gate that makes independent scrutiny possible also means no one is checking anything at the door. Weights that have had their safety training stripped out sit alongside the originals, labelled plainly, downloadable by anyone. Model cards are self-reported and inconsistently filled in. Provenance is frequently unclear — you are often trusting that an anonymous uploader converted the weights faithfully and did not alter anything else along the way.</p><p class="researchAside">I keep trying to land somewhere clean on this and I cannot. Every time I argue myself toward &quot;this should be gated,&quot; I run straight into the fact that gating it hands the entire audit function back to the people being audited.</p><p>The framing I have settled on, at least for now: openness is not the ethical problem, and it is not the ethical solution either. It is a structural choice with real costs on both sides of the ledger. Closing distribution concentrates power and eliminates outside verification. Leaving it open accepts that some fraction of downloads are people deliberately removing guardrails. Anyone claiming this trade is obvious in either direction is not looking at it very hard.</p><p>What I do think is unambiguous: the verification layer is missing. Signed provenance, reproducible conversion, some way to confirm that a quantized artifact derives from the weights it claims to derive from — none of that requires closing anything, and all of it would meaningfully reduce the risk surface. That gap seems like the actual unsolved problem, and it is a boring infrastructure problem rather than a philosophical one.</p><p class="researchAside">Writing that down mostly so I can check in a year whether I still believe it.</p>
+            <p class="researchProvenance">Written from first-hand experience rather than outside reporting — no citations because there aren&rsquo;t any.</p>
+          </div>
+        </details>
+        <details class="researchPost revealItem">
+          <summary class="researchSummary">
+            <div class="researchMeta">
+              <span class="researchDate">August 2026</span>
+              <span class="researchDot" aria-hidden="true"></span>
+              <span>2 min read</span>
+            </div>
+            <h3 class="researchTitle">What the Job Search Is Actually Telling Me</h3>
+            <p class="researchDek">Treating my own application data as evidence rather than as a verdict. A hypothesis about where AI pressure is landing in technical hiring, and what I am changing in response.</p>
+            <div class="researchFooter">
+              <div class="tagRow"><span class="pill">Hiring</span><span class="pill">AI &amp; Work</span><span class="pill">Career</span></div>
+              <span class="researchToggle">Read <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+            </div>
+          </summary>
+          <div class="researchBody">
+            <p>I have submitted a lot of applications this year. Across Florida, into neighboring states, and a wide net of remote roles. The response rate has been poor enough that at some point it stopped feeling like noise and started feeling like signal.</p><p class="researchAside">Writing this publicly is a slightly odd decision and I know it. But pretending the search is going great would be a worse one, and I would rather be the person who examined it than the person who performed confidence.</p><p>So let me treat it as data instead of as a verdict.</p><p>The hypothesis: the roles absorbing the most pressure right now are exactly the ones I have been applying to. Junior-to-mid technical work where the deliverable is well-specified and the value is in execution rather than in deciding what to execute. Write this report. Clean this dataset. Wire this endpoint. That work has not disappeared, but the number of people needed to do it has compressed, and the roles that remain are drawing applicants who used to be a tier above them.</p><p>What has not compressed, as far as I can tell, is the work of deciding what should be built, owning something end to end, and being accountable when it breaks at 2am. That is not because those things are magic. It is because they require carrying context that nobody has written down anywhere.</p><p>I am aware of how convenient this hypothesis is. It explains my results without requiring me to conclude I am the problem, which is exactly the kind of explanation a person reaches for when they are frustrated. So I am holding it loosely, and I am checking it against the alternative — that my materials were not making a strong enough case and the market was reading them correctly.</p><p class="researchAside">Uncomfortable to type. Probably at least partly true. Both things can be.</p><p>Either way the response is the same, which is what makes me think it is the right one: build things that exist, and make them impossible to overlook. A remote desktop application written from scratch over raw TCP, where I had to design my own message framing because the stream kept desynchronizing. A game mod shipped to a public workshop with real users filing real bug reports. Power BI reporting at work that surfaced bottlenecks nobody had asked me to go looking for.</p><p>None of that is work anyone assigned me. That is the entire point. A résumé bullet asserts that I can do something; a thing running on someone else's machine demonstrates it. In a market where the assertions have gotten cheap and abundant, demonstration is most of what is left.</p><p>This site is part of that argument, incidentally. It is not a template. Someone can open the repository and read exactly how it is put together.</p><p class="researchAside">Revisiting this post in six months. Either the hypothesis holds up, or I was rationalizing, and I would genuinely like to know which.</p>
+            <p class="researchProvenance">Written from first-hand experience rather than outside reporting — no citations because there aren&rsquo;t any.</p>
+          </div>
+        </details>
+    </div>
+  </div>
+</section>
+<section class="pageSection" id="credentials">
+  <div class="contentShell">
+    
+  <header class="sectionHeading revealItem">
+    <span class="sectionIndex">06</span>
     <h2 class="sectionTitle">Education &amp; Certifications</h2>
     <span class="sectionRule" aria-hidden="true"></span>
   </header>
@@ -1512,7 +1765,7 @@ button {
   <div class="contentShell">
     
   <header class="sectionHeading revealItem">
-    <span class="sectionIndex">06</span>
+    <span class="sectionIndex">07</span>
     <h2 class="sectionTitle">Get In Touch</h2>
     <span class="sectionRule" aria-hidden="true"></span>
   </header>
@@ -1604,7 +1857,7 @@ button {
   window.addEventListener('resize', onScroll);
 
   // --- active section (useActiveSection) ---
-  var sectionIds = ["about","skills","experience","projects","credentials","contact"];
+  var sectionIds = ["about","skills","experience","projects","research","credentials","contact"];
   var sectionObserver = new IntersectionObserver(function (entries) {
     var visible = entries.filter(function (e) { return e.isIntersecting; })[0];
     if (!visible) return;

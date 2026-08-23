@@ -877,6 +877,207 @@ button {
   flex-shrink: 0;
 }
 
+/* --- Research --------------------------------------------------------- */
+
+.researchIntro {
+  max-width: 62ch;
+  color: var(--colorTextSecondary);
+  margin-bottom: var(--spaceXl);
+}
+
+.researchList {
+  display: grid;
+  gap: var(--spaceMd);
+}
+
+.researchPost {
+  border: 1px solid var(--colorBorder);
+  border-radius: var(--radiusLg);
+  background: var(--colorSurface);
+  box-shadow: var(--shadowCard);
+  transition:
+    border-color var(--durationBase) var(--easeOut),
+    box-shadow var(--durationBase) var(--easeOut);
+}
+
+.researchPost:hover {
+  border-color: var(--colorBorderStrong);
+  box-shadow: var(--shadowLifted);
+}
+
+.researchPost[open] {
+  border-color: var(--colorAccent);
+}
+
+.researchSummary {
+  padding: var(--spaceLg);
+  cursor: pointer;
+  list-style: none;
+  border-radius: var(--radiusLg);
+}
+
+/* Hide the native disclosure triangle in both engines — the custom
+   "Read →" affordance replaces it. */
+.researchSummary::-webkit-details-marker {
+  display: none;
+}
+
+.researchSummary::marker {
+  content: '';
+}
+
+.researchSummary:focus-visible {
+  outline: 2px solid var(--colorAccent);
+  outline-offset: 3px;
+}
+
+.researchMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--spaceXs);
+  font-family: var(--fontMono);
+  font-size: var(--textMicro);
+  color: var(--colorTextMuted);
+  letter-spacing: 0.05em;
+  margin-bottom: var(--spaceXs);
+}
+
+.researchDate {
+  color: var(--colorAccent);
+}
+
+.researchDot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--colorTextMuted);
+}
+
+.researchTitle {
+  font-size: var(--textCardTitle);
+  margin-bottom: var(--spaceXs);
+  max-width: 46ch;
+}
+
+.researchDek {
+  color: var(--colorTextSecondary);
+  max-width: 68ch;
+  margin-bottom: var(--spaceMd);
+}
+
+.researchFooter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spaceSm);
+}
+
+.researchToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space2xs);
+  font-size: var(--textSmall);
+  font-weight: 600;
+  color: var(--colorAccent);
+  flex-shrink: 0;
+}
+
+/* Arrow points down when collapsed, right when open — a small rotation
+   that tells you which direction the interaction goes. */
+.researchToggle svg {
+  transition: transform var(--durationBase) var(--easeOut);
+  transform: rotate(90deg);
+}
+
+.researchPost[open] .researchToggle svg {
+  transform: rotate(-90deg);
+}
+
+.researchPost[open] .researchToggle {
+  color: var(--colorTextMuted);
+}
+
+.researchBody {
+  padding: 0 var(--spaceLg) var(--spaceLg);
+  display: grid;
+  gap: var(--spaceMd);
+  border-top: 1px solid var(--colorBorder);
+  margin-top: calc(var(--spaceXs) * -1);
+  padding-top: var(--spaceLg);
+  animation: researchOpen var(--durationBase) var(--easeOut) both;
+}
+
+@keyframes researchOpen {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.researchBody p {
+  color: var(--colorTextSecondary);
+  max-width: 70ch;
+}
+
+/* The thinking-out-loud interjections. Set apart with an accent rule and
+   italics so they read as a different register from the main argument
+   rather than as ordinary body copy. */
+.researchAside {
+  border-left: 2px solid var(--colorAccent);
+  padding-left: var(--spaceMd);
+  font-style: italic;
+  color: var(--colorTextMuted) !important;
+  max-width: 60ch;
+}
+
+.researchSources {
+  margin-top: var(--spaceSm);
+  padding-top: var(--spaceMd);
+  border-top: 1px dashed var(--colorBorder);
+}
+
+.researchSourcesTitle {
+  font-family: var(--fontMono);
+  font-size: var(--textMicro);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--colorTextMuted);
+  margin-bottom: var(--spaceXs);
+}
+
+.researchSources ul {
+  display: grid;
+  gap: var(--space2xs);
+}
+
+.researchSources a {
+  color: var(--colorAccent);
+  font-size: var(--textSmall);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.researchProvenance {
+  margin-top: var(--spaceSm);
+  padding-top: var(--spaceMd);
+  border-top: 1px dashed var(--colorBorder);
+  font-size: var(--textMicro);
+  font-family: var(--fontMono);
+  color: var(--colorTextMuted) !important;
+}
+
+@media (max-width: 640px) {
+  .researchSummary,
+  .researchBody {
+    padding-inline: var(--spaceMd);
+  }
+}
+
 /* --- Credentials --- */
 .credentialGrid {
   display: grid;

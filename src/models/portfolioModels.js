@@ -105,6 +105,69 @@ export class SkillGroup extends PortfolioEntity {
   }
 }
 
+/**
+ * One entry in the Research section.
+ *
+ * `body` is an array of blocks rather than a single string so the writing
+ * voice can carry structural meaning: `aside` blocks are the thinking-out-
+ * loud interjections, and the component renders them differently from
+ * ordinary paragraphs. Keeping that distinction in the data means the voice
+ * survives even if the markup changes later.
+ */
+export class ResearchPost extends PortfolioEntity {
+  constructor({
+    title,
+    publishedOn,
+    summary,
+    body = [],
+    sources = [],
+    tags = [],
+    isPersonalObservation = false
+  }) {
+    super({ title });
+    this.publishedOn = publishedOn; // ISO 'YYYY-MM-DD'
+    this.summary = summary;
+    this.body = body; // [{ type: 'p' | 'aside', text }]
+    this.sources = sources; // [{ label, url }]
+    this.tags = tags;
+    // True when the post is grounded in first-hand experience rather than
+    // outside reporting. Drives an honest label instead of an empty
+    // "Sources" heading that implies citations that were never there.
+    this.isPersonalObservation = isPersonalObservation;
+  }
+
+  get publishedDate() {
+    // Parsed as UTC deliberately — `new Date('2026-08-01')` is UTC midnight,
+    // which in any negative-offset timezone renders as the previous month.
+    const [year, month, day] = this.publishedOn.split('-').map(Number);
+    return new Date(Date.UTC(year, month - 1, day));
+  }
+
+  get formattedMonth() {
+    return this.publishedDate.toLocaleDateString('en-US', {
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'UTC'
+    });
+  }
+
+  get wordCount() {
+    return this.body.reduce(
+      (runningTotal, block) => runningTotal + block.text.trim().split(/\s+/).length,
+      0
+    );
+  }
+
+  /** 220 wpm is a reasonable average for screen reading of prose. */
+  get readingMinutes() {
+    return Math.max(1, Math.round(this.wordCount / 220));
+  }
+
+  get hasSources() {
+    return this.sources.length > 0;
+  }
+}
+
 /** A degree or certification. */
 export class Credential extends PortfolioEntity {
   constructor({ title, issuer, year, detail = null, status = 'earned' }) {

@@ -3,7 +3,8 @@ import {
   ExperienceEntry,
   ProjectEntry,
   SkillGroup,
-  Credential
+  Credential,
+  ResearchPost
 } from '../models/portfolioModels.js';
 
 /**
@@ -182,6 +183,126 @@ export const portfolioProfile = new PortfolioProfile({
 });
 
 /**
+ * Research posts — newest first.
+ *
+ * Ground rule for this section: every post traces back to something Taylor
+ * actually read, built, or lived. `isPersonalObservation: true` marks the
+ * ones drawn from first-hand experience rather than outside reporting, so
+ * the absence of citations is stated rather than glossed over.
+ */
+export const researchPosts = [
+  new ResearchPost({
+    title: 'Anyone Can Download a Frontier Model. It Took Me About Four Minutes.',
+    publishedOn: '2026-08-18',
+    summary:
+      'Open-weight model hubs quietly became real infrastructure. Quantization is what made them usable on hardware people actually own — and the governance conversation has not caught up with either fact.',
+    tags: ['Open Weights', 'Quantization', 'Local Inference', 'Governance'],
+    isPersonalObservation: true,
+    body: [
+      {
+        type: 'p',
+        text: 'I built a self-hosted inference stack this year — Ollama on Windows, Docker under WSL2, GPU passed through to the container. The part I expected to be hard was the passthrough. The part that actually stopped me was how little friction there was in getting the models.'
+      },
+      {
+        type: 'p',
+        text: 'No account. No key. No terms-of-use checkbox. One pull command and a few gigabytes later I had a capable model running entirely on my own machine, disconnected from any vendor, answering to nobody. That is not a loophole — that is the design working exactly as intended.'
+      },
+      {
+        type: 'aside',
+        text: 'Sat there for a second after the first response came back. Not because it was impressive. Because of how ordinary it felt.'
+      },
+      {
+        type: 'p',
+        text: 'The thing that made this possible is not the hub itself. It is quantization. A model published at full precision is essentially unusable outside a datacenter — you are looking at multiple high-end accelerators before you can load the weights, never mind run them. Quantization reduces the numeric precision of those weights, and a community of people who mostly are not paid to do this converts and republishes them at 8-bit, 5-bit, 4-bit, and lower.'
+      },
+      {
+        type: 'p',
+        text: 'The practical effect is enormous. A model that needed something like 140 GB of VRAM at full precision fits in roughly 40 GB at 4-bit. That is the difference between "cloud only" and "runs on the GPU already in my desk." You lose some quality, and the loss is not linear — the drop from 8-bit to 5-bit is often barely perceptible for ordinary tasks, while the drop below 4-bit degrades quickly and unpredictably. Tuning the quantization level against available VRAM turned out to be the single most consequential decision in my whole setup.'
+      },
+      {
+        type: 'p',
+        text: 'So that is the infrastructure story: a distribution layer plus a volunteer conversion pipeline turned frontier research into something a person can run in a spare room. As infrastructure, it is genuinely impressive. It is also the reason independent research, reproducibility work, and safety auditing by anyone outside a handful of labs is possible at all. If the only people who can examine these systems are the people who build them, you do not really have oversight — you have press releases.'
+      },
+      {
+        type: 'p',
+        text: 'And here is where I have to be honest rather than tidy. The same absence of a gate that makes independent scrutiny possible also means no one is checking anything at the door. Weights that have had their safety training stripped out sit alongside the originals, labelled plainly, downloadable by anyone. Model cards are self-reported and inconsistently filled in. Provenance is frequently unclear — you are often trusting that an anonymous uploader converted the weights faithfully and did not alter anything else along the way.'
+      },
+      {
+        type: 'aside',
+        text: 'I keep trying to land somewhere clean on this and I cannot. Every time I argue myself toward "this should be gated," I run straight into the fact that gating it hands the entire audit function back to the people being audited.'
+      },
+      {
+        type: 'p',
+        text: 'The framing I have settled on, at least for now: openness is not the ethical problem, and it is not the ethical solution either. It is a structural choice with real costs on both sides of the ledger. Closing distribution concentrates power and eliminates outside verification. Leaving it open accepts that some fraction of downloads are people deliberately removing guardrails. Anyone claiming this trade is obvious in either direction is not looking at it very hard.'
+      },
+      {
+        type: 'p',
+        text: 'What I do think is unambiguous: the verification layer is missing. Signed provenance, reproducible conversion, some way to confirm that a quantized artifact derives from the weights it claims to derive from — none of that requires closing anything, and all of it would meaningfully reduce the risk surface. That gap seems like the actual unsolved problem, and it is a boring infrastructure problem rather than a philosophical one.'
+      },
+      {
+        type: 'aside',
+        text: 'Writing that down mostly so I can check in a year whether I still believe it.'
+      }
+    ]
+  }),
+
+  new ResearchPost({
+    title: 'What the Job Search Is Actually Telling Me',
+    publishedOn: '2026-08-20',
+    summary:
+      'Treating my own application data as evidence rather than as a verdict. A hypothesis about where AI pressure is landing in technical hiring, and what I am changing in response.',
+    tags: ['Hiring', 'AI & Work', 'Career'],
+    isPersonalObservation: true,
+    body: [
+      {
+        type: 'p',
+        text: 'I have submitted a lot of applications this year. Across Florida, into neighboring states, and a wide net of remote roles. The response rate has been poor enough that at some point it stopped feeling like noise and started feeling like signal.'
+      },
+      {
+        type: 'aside',
+        text: 'Writing this publicly is a slightly odd decision and I know it. But pretending the search is going great would be a worse one, and I would rather be the person who examined it than the person who performed confidence.'
+      },
+      {
+        type: 'p',
+        text: 'So let me treat it as data instead of as a verdict.'
+      },
+      {
+        type: 'p',
+        text: 'The hypothesis: the roles absorbing the most pressure right now are exactly the ones I have been applying to. Junior-to-mid technical work where the deliverable is well-specified and the value is in execution rather than in deciding what to execute. Write this report. Clean this dataset. Wire this endpoint. That work has not disappeared, but the number of people needed to do it has compressed, and the roles that remain are drawing applicants who used to be a tier above them.'
+      },
+      {
+        type: 'p',
+        text: 'What has not compressed, as far as I can tell, is the work of deciding what should be built, owning something end to end, and being accountable when it breaks at 2am. That is not because those things are magic. It is because they require carrying context that nobody has written down anywhere.'
+      },
+      {
+        type: 'p',
+        text: 'I am aware of how convenient this hypothesis is. It explains my results without requiring me to conclude I am the problem, which is exactly the kind of explanation a person reaches for when they are frustrated. So I am holding it loosely, and I am checking it against the alternative — that my materials were not making a strong enough case and the market was reading them correctly.'
+      },
+      {
+        type: 'aside',
+        text: 'Uncomfortable to type. Probably at least partly true. Both things can be.'
+      },
+      {
+        type: 'p',
+        text: 'Either way the response is the same, which is what makes me think it is the right one: build things that exist, and make them impossible to overlook. A remote desktop application written from scratch over raw TCP, where I had to design my own message framing because the stream kept desynchronizing. A game mod shipped to a public workshop with real users filing real bug reports. Power BI reporting at work that surfaced bottlenecks nobody had asked me to go looking for.'
+      },
+      {
+        type: 'p',
+        text: 'None of that is work anyone assigned me. That is the entire point. A résumé bullet asserts that I can do something; a thing running on someone else\'s machine demonstrates it. In a market where the assertions have gotten cheap and abundant, demonstration is most of what is left.'
+      },
+      {
+        type: 'p',
+        text: 'This site is part of that argument, incidentally. It is not a template. Someone can open the repository and read exactly how it is put together.'
+      },
+      {
+        type: 'aside',
+        text: 'Revisiting this post in six months. Either the hypothesis holds up, or I was rationalizing, and I would genuinely like to know which.'
+      }
+    ]
+  })
+];
+
+/**
  * Nav model. Order here defines both the header links and the vertical
  * order of sections on the page, so the two can never drift apart.
  */
@@ -190,6 +311,7 @@ export const navigationSections = [
   { id: 'skills', label: 'Skills' },
   { id: 'experience', label: 'Experience' },
   { id: 'projects', label: 'Projects' },
+  { id: 'research', label: 'Research' },
   { id: 'credentials', label: 'Credentials' },
   { id: 'contact', label: 'Contact' }
 ];

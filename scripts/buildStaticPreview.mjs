@@ -18,7 +18,8 @@ import { fileURLToPath } from 'node:url';
 import {
   portfolioProfile,
   navigationSections,
-  contactFormEndpoint
+  contactFormEndpoint,
+  researchPosts
 } from '../src/data/portfolioData.js';
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
@@ -278,11 +279,70 @@ const contactHtml = (index) => `
   </div>
 </section>`;
 
+/**
+ * Research uses native <details>/<summary>, so the static build gets the
+ * same expand/collapse behaviour as the React version with no JS at all.
+ */
+const researchHtml = (index) => `
+<section class="pageSection" id="research">
+  <div class="contentShell">
+    ${renderSectionHeading(index, 'Research')}
+    <p class="researchIntro revealItem">Notes on what I&rsquo;ve been reading and running — mostly databases, local model infrastructure, and what AI is doing to technical work. Updated monthly, and written the way I actually think about this stuff rather than the way a blog post is supposed to sound.</p>
+    <div class="researchList">
+      ${researchPosts
+        .map(
+          (post) => `
+        <details class="researchPost revealItem">
+          <summary class="researchSummary">
+            <div class="researchMeta">
+              <span class="researchDate">${escapeHtml(post.formattedMonth)}</span>
+              <span class="researchDot" aria-hidden="true"></span>
+              <span>${post.readingMinutes} min read</span>
+            </div>
+            <h3 class="researchTitle">${escapeHtml(post.title)}</h3>
+            <p class="researchDek">${escapeHtml(post.summary)}</p>
+            <div class="researchFooter">
+              <div class="tagRow">${renderPills(post.tags)}</div>
+              <span class="researchToggle">Read ${iconMarkup.arrowRight}</span>
+            </div>
+          </summary>
+          <div class="researchBody">
+            ${post.body
+              .map((block) =>
+                block.type === 'aside'
+                  ? `<p class="researchAside">${escapeHtml(block.text)}</p>`
+                  : `<p>${escapeHtml(block.text)}</p>`
+              )
+              .join('')}
+            ${
+              post.hasSources
+                ? `<div class="researchSources">
+                     <h4 class="researchSourcesTitle">Sources</h4>
+                     <ul>${post.sources
+                       .map(
+                         (source) =>
+                           `<li><a href="${escapeHtml(source.url)}" target="_blank" rel="noreferrer noopener">${escapeHtml(source.label)}</a></li>`
+                       )
+                       .join('')}</ul>
+                   </div>`
+                : post.isPersonalObservation
+                  ? '<p class="researchProvenance">Written from first-hand experience rather than outside reporting — no citations because there aren&rsquo;t any.</p>'
+                  : ''
+            }
+          </div>
+        </details>`
+        )
+        .join('')}
+    </div>
+  </div>
+</section>`;
+
 const sectionRenderers = {
   about: aboutHtml,
   skills: skillsHtml,
   experience: experienceHtml,
   projects: projectsHtml,
+  research: researchHtml,
   credentials: credentialsHtml,
   contact: contactHtml
 };
