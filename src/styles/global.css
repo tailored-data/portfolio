@@ -1,4 +1,5 @@
 @import './theme.css';
+@import './layout-rest.css';
 
 /* ==========================================================================
    1. RESET & BASE
@@ -135,24 +136,12 @@ button {
   font-size: var(--textSectionTitle);
 }
 
-/* The hairline runs from the title toward the right margin. It has no
-   semantic job — it exists to extend the eye's travel horizontally so the
-   gaze finishes each heading pointed at the content beneath it. */
 .sectionRule {
   flex: 1;
   height: 1px;
   background: linear-gradient(90deg, var(--colorBorderStrong), transparent);
   align-self: center;
 }
-
-/* ==========================================================================
-   3. SCROLL REVEAL
-
-   Elements start slightly offset and transparent, then transition in when
-   the IntersectionObserver adds .isVisible. Transform + opacity only:
-   both are GPU-composited, so this never triggers layout and stays at
-   60fps even with every section mounted.
-   ========================================================================== */
 
 .revealItem {
   opacity: 0;
@@ -177,14 +166,6 @@ button {
   transform: translate3d(0, 0, 0);
 }
 
-/* ==========================================================================
-   4. PROGRESS RAIL
-
-   Fixed to the left edge. The fill height is driven by a CSS variable that
-   React updates from scroll position, so the user always has a peripheral
-   read on how far through the page they are.
-   ========================================================================== */
-
 .progressRail {
   position: fixed;
   left: clamp(0.75rem, 2.2vw, 1.75rem);
@@ -208,8 +189,6 @@ button {
   transition: height 120ms linear;
 }
 
-/* Dot markers sit at each section's position along the rail. The active
-   one scales up and lights, giving a second, non-textual "you are here". */
 .progressRailMarker {
   position: absolute;
   left: 50%;
@@ -238,10 +217,6 @@ button {
     display: none;
   }
 }
-
-/* ==========================================================================
-   5. HEADER
-   ========================================================================== */
 
 .siteHeader {
   position: fixed;
@@ -401,10 +376,6 @@ button {
     display: none;
   }
 }
-
-/* ==========================================================================
-   6. HERO
-   ========================================================================== */
 
 .heroSection {
   position: relative;
