@@ -31,7 +31,7 @@ export function HeroSection({ profile }) {
   const [firstName, ...remainingNameParts] = profile.fullName.split(' ');
 
   return (
-    <section className="heroSection" id="top" ref={heroRef}>
+    <section className="heroSection" id="top" tabIndex={-1} ref={heroRef}>
       <div className="contentShell">
         <p className="heroEyebrow revealItem">
           <span className="heroStatusDot" aria-hidden="true" />

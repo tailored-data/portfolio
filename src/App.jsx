@@ -45,7 +45,7 @@ export default function App() {
 
   return (
     <>
-      <a className="skipLink" href="#about">
+      <a className="skipLink" href="#main">
         Skip to main content
       </a>
 
@@ -59,7 +59,7 @@ export default function App() {
 
       <ProgressRail sections={navigationSections} activeSectionId={activeSectionId} />
 
-      <main>
+      <main id="main" tabIndex={-1}>
         <HeroSection profile={portfolioProfile} />
 
         {navigationSections.map((section, sectionIndex) => {

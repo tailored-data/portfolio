@@ -12,9 +12,15 @@ import { ArrowRightIcon } from './SiteIcons.jsx';
  * closed <details> when Ctrl+F matches inside it) for free — and it means
  * the static preview generator renders identical, fully working markup
  * with no JavaScript at all.
+ *
+ * Display order is by publishedOn, newest first, so the array in
+ * portfolioData.js cannot silently drift.
  */
 export function ResearchSection({ index }) {
   const sectionRef = useRevealOnScroll({ staggerMs: 70 });
+  const postsByDate = [...researchPosts].sort((a, b) =>
+    b.publishedOn.localeCompare(a.publishedOn)
+  );
 
   return (
     <section className="pageSection" id="research" ref={sectionRef}>
@@ -29,7 +35,7 @@ export function ResearchSection({ index }) {
         </p>
 
         <div className="researchList">
-          {researchPosts.map((post) => (
+          {postsByDate.map((post) => (
             <details className="researchPost revealItem" key={post.slug}>
               <summary className="researchSummary">
                 <div className="researchMeta">
