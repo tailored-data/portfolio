@@ -26,6 +26,8 @@ const report = (didPass, label, detail = '') => {
 
 const stylesheetText =
   fs.readFileSync(path.join(projectRoot, 'src/styles/global.css'), 'utf8') +
+  fs.readFileSync(path.join(projectRoot, 'src/styles/layout-rest.css'), 'utf8') +
+  fs.readFileSync(path.join(projectRoot, 'src/styles/sections.css'), 'utf8') +
   fs.readFileSync(path.join(projectRoot, 'src/styles/theme.css'), 'utf8');
 
 const definedClasses = new Set(
@@ -65,7 +67,8 @@ for (const runtimeClass of [
   'fromLeft',
   'fromRight',
   'isSuccess',
-  'isError'
+  'isError',
+  'isMenuOpen'
 ]) {
   usedClasses.set(runtimeClass, 'runtime');
 }
@@ -185,9 +188,9 @@ console.log('\nPERSONAL DATA SCAN');
 // No literal examples in the comments either — an example phone number
 // would match these patterns and fail this very check.
 const phonePatterns = [
-  /\(\d{3}\)\s*\d{3}[-.\s]\d{4}/, // parenthesised area code, then 3 and 4 digits
-  /\b\d{3}[-.]\d{3}[-.]\d{4}\b/, // 3-3-4 digits split by hyphens or dots
-  /tel:\+?\d[\d\s().-]{7,}/i // any tel: link
+  /\(\d{3}\)\s*\d{3}[-.\s]\d{4}/,
+  /\b\d{3}[-.]\d{3}[-.]\d{4}\b/,
+  /tel:\+?\d[\d\s().-]{7,}/i
 ];
 
 const scanTargets = [

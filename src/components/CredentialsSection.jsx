@@ -6,12 +6,13 @@ import { SectionHeading } from './SectionHeading.jsx';
  *
  * Both render through the same Credential model, so adding a new cert is a
  * one-line change in portfolioData.js — the badge, layout, and status
- * label all derive from the model itself.
+ * label all derive from the model itself. Education uses a Degree badge
+ * instead of Certified, which is reserved for actual certifications.
  */
 export function CredentialsSection({ profile, index }) {
   const sectionRef = useRevealOnScroll({ staggerMs: 70 });
 
-  const renderCredentialCard = (credential) => (
+  const renderCredentialCard = (credential, kind) => (
     <article className="card revealItem" key={credential.slug}>
       <div
         style={{
@@ -22,7 +23,9 @@ export function CredentialsSection({ profile, index }) {
         }}
       >
         <h3 className="cardTitle">{credential.title}</h3>
-        <span className="credentialBadge">{credential.statusLabel}</span>
+        <span className="credentialBadge">
+          {kind === 'degree' ? 'Degree' : credential.statusLabel}
+        </span>
       </div>
 
       <p className="cardSubtitle">{credential.issuer}</p>
@@ -39,8 +42,12 @@ export function CredentialsSection({ profile, index }) {
         <SectionHeading index={index} title="Education & Certifications" />
 
         <div className="credentialGrid">
-          {profile.education.map(renderCredentialCard)}
-          {profile.certifications.map(renderCredentialCard)}
+          {profile.education.map((credential) =>
+            renderCredentialCard(credential, 'degree')
+          )}
+          {profile.certifications.map((credential) =>
+            renderCredentialCard(credential, 'certification')
+          )}
         </div>
       </div>
     </section>

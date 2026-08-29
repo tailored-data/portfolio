@@ -148,7 +148,7 @@ export const portfolioProfile = new PortfolioProfile({
       repoUrl: null
     }),
     new ProjectEntry({
-      title: 'RuneLite Plugin',
+      title: 'Character Stats',
       subtitle: 'Open-Source Contribution',
       summary:
         'Authored and published a game-client plugin through the open-source RuneLite ecosystem, taking it from local build to public release.',
@@ -157,8 +157,9 @@ export const portfolioProfile = new PortfolioProfile({
         'Diagnosed and resolved Gradle build and resource-packaging issues blocking the release.',
         'Navigated an external maintainer review process to ship to production users.'
       ],
-      repoUrl: null,
-      sourceNote: 'Source available on request'
+      repoUrl: 'https://github.com/tailored-data/OSRSCharacterStatsDisplays',
+      liveUrl: 'https://runelite.net/plugin-hub/show/character-stats',
+      liveLabel: 'Plugin Hub'
     })
   ],
 

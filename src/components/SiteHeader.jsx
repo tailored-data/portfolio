@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { GitHubIcon, MoonIcon, SunIcon } from './SiteIcons.jsx';
+import { GitHubIcon, MoonIcon, SunIcon, MenuIcon, CloseIcon } from './SiteIcons.jsx';
 
 /**
  * Fixed header. Transparent over the hero, then fades to a frosted bar once
@@ -15,6 +15,7 @@ export function SiteHeader({
   onToggleTheme
 }) {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 40);
@@ -23,15 +24,32 @@ export function SiteHeader({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    if (!isMenuOpen) return undefined;
+
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') setIsMenuOpen(false);
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isMenuOpen]);
+
+  const closeMenu = () => setIsMenuOpen(false);
+
   return (
-    <header className={`siteHeader${isScrolled ? ' isScrolled' : ''}`}>
+    <header
+      className={`siteHeader${isScrolled ? ' isScrolled' : ''}${
+        isMenuOpen ? ' isMenuOpen' : ''
+      }`}
+    >
       <div className="contentShell siteHeaderInner">
         <a className="headerMark" href="#top" aria-label={`${profile.fullName} — back to top`}>
           <span className="headerMarkInitials">{profile.initials}</span>
           <span>{profile.fullName.toUpperCase()}</span>
         </a>
 
-        <nav className="headerNav" aria-label="Section navigation">
+        <nav id="section-nav" className="headerNav" aria-label="Section navigation">
           {sections.map((section) => (
             <a
               key={section.id}
@@ -40,6 +58,7 @@ export function SiteHeader({
                 section.id === activeSectionId ? ' isActive' : ''
               }`}
               aria-current={section.id === activeSectionId ? 'true' : undefined}
+              onClick={closeMenu}
             >
               {section.label}
             </a>
@@ -47,6 +66,16 @@ export function SiteHeader({
         </nav>
 
         <div className="headerActions">
+          <button
+            type="button"
+            className="iconButton menuToggle"
+            aria-expanded={isMenuOpen}
+            aria-controls="section-nav"
+            aria-label={isMenuOpen ? 'Close section navigation' : 'Open section navigation'}
+            onClick={() => setIsMenuOpen((open) => !open)}
+          >
+            {isMenuOpen ? <CloseIcon /> : <MenuIcon />}
+          </button>
           <a
             className="iconButton"
             href={profile.gitHubUrl}
