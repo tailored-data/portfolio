@@ -65,7 +65,8 @@ for (const runtimeClass of [
   'fromLeft',
   'fromRight',
   'isSuccess',
-  'isError'
+  'isError',
+  'isMenuOpen'
 ]) {
   usedClasses.set(runtimeClass, 'runtime');
 }
