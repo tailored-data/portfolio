@@ -193,6 +193,54 @@ export const portfolioProfile = new PortfolioProfile({
  */
 export const researchPosts = [
   new ResearchPost({
+    title: 'NVIDIA Built Something Real and Still Botched the Reveal',
+    publishedOn: '2026-09-04',
+    summary:
+      'DLSS 5 and Grok Bot shipped weeks apart, and both got judged on how they were shown rather than what they actually do. That gap is steering AI investment as much as the research is.',
+    tags: ['DLSS 5', 'Neural Rendering', 'Multi-Agent AI', 'Market Perception'],
+    sources: [
+      {
+        label: 'DLSS 5: Generative Neural Rendering — Technical Report (NVIDIA ADLR)',
+        url: 'https://research.nvidia.com/labs/adlr/files/DLSS5_Report.pdf'
+      },
+      { label: 'Introducing Grok Bot | SpaceXAI', url: 'https://x.ai/news/introducing-grok-bot' }
+    ],
+    body: [
+      {
+        type: 'p',
+        text: 'NVIDIA’s DLSS 5 went live September 3rd, and the showcase game is NBA 2K27. Not Cyberpunk, not some flagship single-player epic — a yearly sports title. I get why people are unimpressed by the choice. It’s a strange first impression for what’s actually a pretty significant piece of tech.'
+      },
+      {
+        type: 'p',
+        text: 'DLSS 5 does 3D-guided neural rendering — a learned model infusing lighting and material detail into the scene in real time, aiming at something closer to actual photoreal rendering instead of the usual rasterize-and-upscale approach. In 2K27 that shows up mostly in skin and lighting on player models. It’s a real jump. I just don’t think most people watching a basketball clip are equipped to tell the difference between "this looks better" and "this is a fundamentally different rendering pipeline."'
+      },
+      {
+        type: 'p',
+        text: 'That’s basically what happened with the first version of this back in 2025 too. It launched to a lot of people calling it an AI filter slapped over a normal render, because the demos didn’t separate "new rendering approach" from "looks shinier." NVIDIA had something real and showed it in a way that made it easy to write off.'
+      },
+      {
+        type: 'aside',
+        text: 'Might be giving NVIDIA’s marketing team too hard a time here. I wasn’t in the room when someone picked NBA 2K27 as the launch title. But the public reaction is the public reaction, and it wasn’t "wow."'
+      },
+      {
+        type: 'p',
+        text: 'The more interesting part happened after launch, not at it. Within days, someone pulled the neural rendering runtime out of the 2K27 build, and modders had it running in Cyberpunk 2077, Control, GTA V — games nowhere near NVIDIA’s official list. NVIDIA didn’t build an open ecosystem around this. The community built one anyway, the same week it shipped.'
+      },
+      {
+        type: 'p',
+        text: 'Grok Bot came out of xAI a few weeks earlier, and it’s a completely different kind of announcement doing the same thing to me. The pitch: agents that each get their own computer in the cloud, work inside your actual tools instead of a sandboxed chat window, and talk to each other to divide up work — one bot on sales outbound, another triaging bugs, a third handling the handoff between them. That’s a real architectural choice, not just a marketing wrapper. Whether it holds up under real use is a separate question, but "one machine per agent, agents coordinating like a team" is not nothing.'
+      },
+      {
+        type: 'p',
+        text: 'Put next to each other, I think these are the same story. Both companies shipped something with a real technical claim behind it. Both got a reception shaped almost entirely by how the thing was shown, not by what it does. That gap is doing as much to steer where AI investment goes next as the underlying research is — a company chasing the next flashy demo moment is a different company than one making the harder case for the substance under it.'
+      },
+      {
+        type: 'aside',
+        text: 'The "one machine per agent" idea landed differently for me than it probably did for most people reading that page. I spent this month trying to hand-route a single local model through Claude Code and got stuck being scared of my own config. xAI just shipped the productized version of the thing I was fumbling with. Not sure what to do with that yet.'
+      }
+    ]
+  }),
+  new ResearchPost({
     title: 'The Bottleneck Was Never the GPU',
     publishedOn: '2026-08-25',
     summary:

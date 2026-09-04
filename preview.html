@@ -279,24 +279,12 @@ button {
   font-size: var(--textSectionTitle);
 }
 
-/* The hairline runs from the title toward the right margin. It has no
-   semantic job — it exists to extend the eye's travel horizontally so the
-   gaze finishes each heading pointed at the content beneath it. */
 .sectionRule {
   flex: 1;
   height: 1px;
   background: linear-gradient(90deg, var(--colorBorderStrong), transparent);
   align-self: center;
 }
-
-/* ==========================================================================
-   3. SCROLL REVEAL
-
-   Elements start slightly offset and transparent, then transition in when
-   the IntersectionObserver adds .isVisible. Transform + opacity only:
-   both are GPU-composited, so this never triggers layout and stays at
-   60fps even with every section mounted.
-   ========================================================================== */
 
 .revealItem {
   opacity: 0;
@@ -321,14 +309,6 @@ button {
   transform: translate3d(0, 0, 0);
 }
 
-/* ==========================================================================
-   4. PROGRESS RAIL
-
-   Fixed to the left edge. The fill height is driven by a CSS variable that
-   React updates from scroll position, so the user always has a peripheral
-   read on how far through the page they are.
-   ========================================================================== */
-
 .progressRail {
   position: fixed;
   left: clamp(0.75rem, 2.2vw, 1.75rem);
@@ -352,8 +332,6 @@ button {
   transition: height 120ms linear;
 }
 
-/* Dot markers sit at each section's position along the rail. The active
-   one scales up and lights, giving a second, non-textual "you are here". */
 .progressRailMarker {
   position: absolute;
   left: 50%;
@@ -382,10 +360,6 @@ button {
     display: none;
   }
 }
-
-/* ==========================================================================
-   5. HEADER
-   ========================================================================== */
 
 .siteHeader {
   position: fixed;
@@ -501,15 +475,50 @@ button {
   background: var(--colorAccentSoft);
 }
 
+.menuToggle {
+  display: none;
+}
+
+#main:focus,
+#top:focus {
+  outline: none;
+}
+
 @media (max-width: 780px) {
+  .menuToggle {
+    display: grid;
+  }
+
   .headerNav {
     display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 4.5rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: var(--spaceSm) var(--gutter) var(--spaceMd);
+    background: var(--colorSurfaceGlass);
+    backdrop-filter: blur(14px) saturate(1.4);
+    -webkit-backdrop-filter: blur(14px) saturate(1.4);
+    border-bottom: 1px solid var(--colorBorder);
+  }
+
+  .siteHeader.isMenuOpen .headerNav {
+    display: flex;
+  }
+
+  .headerNavLink {
+    padding: var(--spaceSm);
   }
 }
 
-/* ==========================================================================
-   6. HERO
-   ========================================================================== */
+@media (max-width: 480px) {
+  .headerMark span:not(.headerMarkInitials) {
+    display: none;
+  }
+}
 
 .heroSection {
   position: relative;
@@ -593,9 +602,6 @@ button {
   color: var(--colorTextMuted);
 }
 
-/* Scroll cue: the single most important eye-guide on the page. It sits at
-   the bottom of the first viewport and animates downward, resolving the
-   "what now?" moment before the user has to ask it. */
 .scrollCue {
   position: absolute;
   left: 50%;
@@ -636,808 +642,6 @@ button {
   }
   100% {
     transform: translateY(300%);
-  }
-}
-
-/* ==========================================================================
-   7. BUTTONS, PILLS, TAGS
-   ========================================================================== */
-
-.buttonPrimary,
-.buttonGhost {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spaceXs);
-  padding: 0.7rem 1.35rem;
-  border-radius: var(--radiusPill);
-  font-size: var(--textSmall);
-  font-weight: 600;
-  transition:
-    transform var(--durationFast) var(--easeOut),
-    box-shadow var(--durationFast) var(--easeOut),
-    background-color var(--durationFast) var(--easeOut),
-    border-color var(--durationFast) var(--easeOut);
-}
-
-.buttonPrimary {
-  background: var(--colorAccent);
-  color: #04121b;
-  box-shadow: 0 10px 30px -12px var(--colorAccentGlow);
-}
-
-.buttonPrimary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 38px -12px var(--colorAccentGlow);
-}
-
-.buttonGhost {
-  border: 1px solid var(--colorBorderStrong);
-  color: var(--colorTextPrimary);
-}
-
-.buttonGhost:hover {
-  border-color: var(--colorAccent);
-  color: var(--colorAccent);
-  background: var(--colorAccentSoft);
-  transform: translateY(-2px);
-}
-
-.buttonPrimary:disabled,
-.buttonGhost:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.pill {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.3rem 0.8rem;
-  border-radius: var(--radiusPill);
-  border: 1px solid var(--colorBorder);
-  background: var(--colorAccentSoft);
-  color: var(--colorTextSecondary);
-  font-size: var(--textMicro);
-  font-family: var(--fontMono);
-  letter-spacing: 0.04em;
-}
-
-.tagRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spaceXs);
-}
-
-/* ==========================================================================
-   8. ZIG-ZAG BLOCKS
-
-   The core eye-flow mechanism. Blocks alternate which side of the grid
-   they occupy, so the reading path traces a Z down the page. Each block's
-   endpoint sits diagonally adjacent to the next one's entry point, which
-   means the eye is already moving in the right direction when the next
-   block arrives. No conscious decision required.
-   ========================================================================== */
-
-.zigZagBlock {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  align-items: center;
-  gap: var(--spaceLg);
-  margin-bottom: var(--space2xl);
-  position: relative;
-}
-
-.zigZagBlock:last-child {
-  margin-bottom: 0;
-}
-
-.zigZagBlock.alignLeft .zigZagBody {
-  grid-column: 1 / span 7;
-}
-
-.zigZagBlock.alignLeft .zigZagAside {
-  grid-column: 9 / span 4;
-}
-
-.zigZagBlock.alignRight .zigZagBody {
-  grid-column: 6 / span 7;
-  order: 2;
-}
-
-.zigZagBlock.alignRight .zigZagAside {
-  grid-column: 1 / span 4;
-  order: 1;
-  text-align: right;
-}
-
-/* Faint connector arc between consecutive blocks. Subliminal, but it gives
-   the gaze a physical path to follow instead of a jump across whitespace. */
-.zigZagConnector {
-  position: absolute;
-  bottom: calc(var(--space2xl) * -0.62);
-  width: 42%;
-  height: calc(var(--space2xl) * 0.75);
-  border-color: var(--colorBorder);
-  border-style: solid;
-  border-width: 0;
-  pointer-events: none;
-  opacity: 0.85;
-}
-
-.zigZagBlock.alignLeft .zigZagConnector {
-  left: 12%;
-  border-left-width: 1px;
-  border-bottom-width: 1px;
-  border-bottom-left-radius: var(--radiusLg);
-}
-
-.zigZagBlock.alignRight .zigZagConnector {
-  right: 12%;
-  border-right-width: 1px;
-  border-bottom-width: 1px;
-  border-bottom-right-radius: var(--radiusLg);
-}
-
-.zigZagBlock:last-child .zigZagConnector {
-  display: none;
-}
-
-@media (max-width: 860px) {
-  .zigZagBlock,
-  .zigZagBlock.alignLeft,
-  .zigZagBlock.alignRight {
-    grid-template-columns: 1fr;
-    gap: var(--spaceMd);
-    margin-bottom: var(--spaceXl);
-  }
-
-  .zigZagBlock.alignLeft .zigZagBody,
-  .zigZagBlock.alignRight .zigZagBody,
-  .zigZagBlock.alignLeft .zigZagAside,
-  .zigZagBlock.alignRight .zigZagAside {
-    grid-column: 1 / -1;
-    order: initial;
-    text-align: left;
-  }
-
-  .zigZagBlock.alignRight .zigZagBody {
-    order: 2;
-  }
-
-  .zigZagBlock.alignRight .zigZagAside {
-    order: 1;
-  }
-
-  .zigZagConnector {
-    display: none;
-  }
-}
-
-/* ==========================================================================
-   9. CARDS
-   ========================================================================== */
-
-.card {
-  position: relative;
-  padding: var(--spaceLg);
-  border-radius: var(--radiusLg);
-  background: var(--colorSurface);
-  border: 1px solid var(--colorBorder);
-  box-shadow: var(--shadowCard);
-  transition:
-    transform var(--durationBase) var(--easeOut),
-    border-color var(--durationBase) var(--easeOut),
-    box-shadow var(--durationBase) var(--easeOut);
-}
-
-.card:hover {
-  transform: translateY(-4px);
-  border-color: var(--colorBorderStrong);
-  box-shadow: var(--shadowLifted);
-}
-
-/* Accent bar on the leading edge, revealed on hover. Confirms the card is
-   the active object without changing its size or shifting the layout. */
-.card::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: var(--spaceLg);
-  bottom: var(--spaceLg);
-  width: 2px;
-  border-radius: var(--radiusPill);
-  background: var(--colorAccent);
-  transform: scaleY(0);
-  transform-origin: top;
-  transition: transform var(--durationBase) var(--easeOut);
-}
-
-.card:hover::before {
-  transform: scaleY(1);
-}
-
-.cardTitle {
-  font-size: var(--textCardTitle);
-  margin-bottom: var(--space2xs);
-}
-
-.cardSubtitle {
-  color: var(--colorAccent);
-  font-size: var(--textSmall);
-  font-weight: 600;
-  margin-bottom: var(--spaceSm);
-}
-
-.cardMeta {
-  font-family: var(--fontMono);
-  font-size: var(--textMicro);
-  color: var(--colorTextMuted);
-  letter-spacing: 0.05em;
-}
-
-.cardBody {
-  color: var(--colorTextSecondary);
-}
-
-.bulletList {
-  display: grid;
-  gap: var(--spaceSm);
-  margin-top: var(--spaceMd);
-}
-
-.bulletList li {
-  position: relative;
-  padding-left: 1.35rem;
-  color: var(--colorTextSecondary);
-  font-size: var(--textBody);
-}
-
-/* Row of source/live buttons at the foot of a project card. Wraps rather
-   than overflowing when a card is narrow. */
-.projectLinks {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--spaceSm);
-  margin-top: var(--spaceLg);
-}
-
-/* Stands in for a repo button when the source is deliberately private.
-   Styled as quiet text, not a button, so it doesn't invite a click. */
-.sourceNote {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space2xs);
-  font-family: var(--fontMono);
-  font-size: var(--textMicro);
-  letter-spacing: 0.04em;
-  color: var(--colorTextMuted);
-  padding: 0.3rem 0.7rem;
-  border-radius: var(--radiusPill);
-  border: 1px dashed var(--colorBorderStrong);
-}
-
-.bulletList li::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0.62em;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  border: 1.5px solid var(--colorAccent);
-}
-
-/* ==========================================================================
-   10. SECTION-SPECIFIC
-   ========================================================================== */
-
-/* --- About --- */
-.aboutGrid {
-  display: grid;
-  grid-template-columns: 1.5fr 1fr;
-  gap: var(--spaceXl);
-  align-items: start;
-}
-
-.aboutLead {
-  font-size: clamp(1.1rem, 2vw, 1.35rem);
-  line-height: 1.6;
-  color: var(--colorTextPrimary);
-  margin-bottom: var(--spaceMd);
-}
-
-.aboutBody {
-  color: var(--colorTextSecondary);
-}
-
-.statStack {
-  display: grid;
-  gap: var(--spaceMd);
-}
-
-.statCard {
-  padding: var(--spaceMd);
-  border-radius: var(--radiusMd);
-  border: 1px solid var(--colorBorder);
-  background: var(--colorSurface);
-}
-
-.statValue {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--colorAccent);
-  line-height: 1.2;
-}
-
-.statLabel {
-  font-size: var(--textSmall);
-  color: var(--colorTextMuted);
-}
-
-@media (max-width: 860px) {
-  .aboutGrid {
-    grid-template-columns: 1fr;
-    gap: var(--spaceLg);
-  }
-}
-
-/* --- Skills --- */
-.skillGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
-  gap: var(--spaceMd);
-}
-
-.skillGroupTitle {
-  font-family: var(--fontMono);
-  font-size: var(--textSmall);
-  color: var(--colorAccent);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin-bottom: var(--spaceSm);
-}
-
-.skillList {
-  display: grid;
-  gap: var(--spaceXs);
-}
-
-.skillList li {
-  color: var(--colorTextSecondary);
-  font-size: var(--textSmall);
-  display: flex;
-  align-items: center;
-  gap: var(--spaceXs);
-}
-
-.skillList li::before {
-  content: '';
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: var(--colorAccent);
-  opacity: 0.65;
-  flex-shrink: 0;
-}
-
-/* --- Research --------------------------------------------------------- */
-
-.researchIntro {
-  max-width: 62ch;
-  color: var(--colorTextSecondary);
-  margin-bottom: var(--spaceXl);
-}
-
-.researchList {
-  display: grid;
-  gap: var(--spaceMd);
-}
-
-.researchPost {
-  border: 1px solid var(--colorBorder);
-  border-radius: var(--radiusLg);
-  background: var(--colorSurface);
-  box-shadow: var(--shadowCard);
-  transition:
-    border-color var(--durationBase) var(--easeOut),
-    box-shadow var(--durationBase) var(--easeOut);
-}
-
-.researchPost:hover {
-  border-color: var(--colorBorderStrong);
-  box-shadow: var(--shadowLifted);
-}
-
-.researchPost[open] {
-  border-color: var(--colorAccent);
-}
-
-.researchSummary {
-  padding: var(--spaceLg);
-  cursor: pointer;
-  list-style: none;
-  border-radius: var(--radiusLg);
-}
-
-/* Hide the native disclosure triangle in both engines — the custom
-   "Read →" affordance replaces it. */
-.researchSummary::-webkit-details-marker {
-  display: none;
-}
-
-.researchSummary::marker {
-  content: '';
-}
-
-.researchSummary:focus-visible {
-  outline: 2px solid var(--colorAccent);
-  outline-offset: 3px;
-}
-
-.researchMeta {
-  display: flex;
-  align-items: center;
-  gap: var(--spaceXs);
-  font-family: var(--fontMono);
-  font-size: var(--textMicro);
-  color: var(--colorTextMuted);
-  letter-spacing: 0.05em;
-  margin-bottom: var(--spaceXs);
-}
-
-.researchDate {
-  color: var(--colorAccent);
-}
-
-.researchDot {
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: var(--colorTextMuted);
-}
-
-.researchTitle {
-  font-size: var(--textCardTitle);
-  margin-bottom: var(--spaceXs);
-  max-width: 46ch;
-}
-
-.researchDek {
-  color: var(--colorTextSecondary);
-  max-width: 68ch;
-  margin-bottom: var(--spaceMd);
-}
-
-.researchFooter {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spaceSm);
-}
-
-.researchToggle {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space2xs);
-  font-size: var(--textSmall);
-  font-weight: 600;
-  color: var(--colorAccent);
-  flex-shrink: 0;
-}
-
-/* Arrow points down when collapsed, right when open — a small rotation
-   that tells you which direction the interaction goes. */
-.researchToggle svg {
-  transition: transform var(--durationBase) var(--easeOut);
-  transform: rotate(90deg);
-}
-
-.researchPost[open] .researchToggle svg {
-  transform: rotate(-90deg);
-}
-
-.researchPost[open] .researchToggle {
-  color: var(--colorTextMuted);
-}
-
-.researchBody {
-  padding: 0 var(--spaceLg) var(--spaceLg);
-  display: grid;
-  gap: var(--spaceMd);
-  border-top: 1px solid var(--colorBorder);
-  margin-top: calc(var(--spaceXs) * -1);
-  padding-top: var(--spaceLg);
-  animation: researchOpen var(--durationBase) var(--easeOut) both;
-}
-
-@keyframes researchOpen {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-.researchBody p {
-  color: var(--colorTextSecondary);
-  max-width: 70ch;
-}
-
-/* The thinking-out-loud interjections. Set apart with an accent rule and
-   italics so they read as a different register from the main argument
-   rather than as ordinary body copy. */
-.researchAside {
-  border-left: 2px solid var(--colorAccent);
-  padding-left: var(--spaceMd);
-  font-style: italic;
-  color: var(--colorTextMuted) !important;
-  max-width: 60ch;
-}
-
-.researchSources {
-  margin-top: var(--spaceSm);
-  padding-top: var(--spaceMd);
-  border-top: 1px dashed var(--colorBorder);
-}
-
-.researchSourcesTitle {
-  font-family: var(--fontMono);
-  font-size: var(--textMicro);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--colorTextMuted);
-  margin-bottom: var(--spaceXs);
-}
-
-.researchSources ul {
-  display: grid;
-  gap: var(--space2xs);
-}
-
-.researchSources a {
-  color: var(--colorAccent);
-  font-size: var(--textSmall);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.researchProvenance {
-  margin-top: var(--spaceSm);
-  padding-top: var(--spaceMd);
-  border-top: 1px dashed var(--colorBorder);
-  font-size: var(--textMicro);
-  font-family: var(--fontMono);
-  color: var(--colorTextMuted) !important;
-}
-
-@media (max-width: 640px) {
-  .researchSummary,
-  .researchBody {
-    padding-inline: var(--spaceMd);
-  }
-}
-
-/* --- Credentials --- */
-.credentialGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
-  gap: var(--spaceMd);
-}
-
-.credentialBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space2xs);
-  padding: 0.2rem 0.65rem;
-  border-radius: var(--radiusPill);
-  font-size: var(--textMicro);
-  font-family: var(--fontMono);
-  border: 1px solid var(--colorAccent);
-  color: var(--colorAccent);
-  background: var(--colorAccentSoft);
-}
-
-/* --- Contact --- */
-.contactGrid {
-  display: grid;
-  grid-template-columns: 1fr 1.15fr;
-  gap: var(--spaceXl);
-  align-items: start;
-}
-
-.contactChannels {
-  display: grid;
-  gap: var(--spaceSm);
-  margin-top: var(--spaceLg);
-}
-
-.contactChannel {
-  display: flex;
-  align-items: center;
-  gap: var(--spaceSm);
-  padding: var(--spaceSm) var(--spaceMd);
-  border-radius: var(--radiusMd);
-  border: 1px solid var(--colorBorder);
-  color: var(--colorTextSecondary);
-  transition:
-    border-color var(--durationFast) var(--easeOut),
-    color var(--durationFast) var(--easeOut),
-    transform var(--durationFast) var(--easeOut);
-}
-
-.contactChannel:hover {
-  border-color: var(--colorAccent);
-  color: var(--colorTextPrimary);
-  transform: translateX(4px);
-}
-
-.contactForm {
-  display: grid;
-  gap: var(--spaceMd);
-  padding: var(--spaceLg);
-  border-radius: var(--radiusLg);
-  border: 1px solid var(--colorBorder);
-  background: var(--colorSurface);
-  box-shadow: var(--shadowCard);
-}
-
-.formField {
-  display: grid;
-  gap: var(--space2xs);
-}
-
-.formLabel {
-  font-size: var(--textMicro);
-  font-family: var(--fontMono);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--colorTextMuted);
-}
-
-.formInput,
-.formTextarea {
-  width: 100%;
-  padding: 0.75rem 0.95rem;
-  border-radius: var(--radiusMd);
-  border: 1px solid var(--colorBorder);
-  background: var(--colorBackground);
-  color: var(--colorTextPrimary);
-  font-family: inherit;
-  font-size: var(--textSmall);
-  transition:
-    border-color var(--durationFast) var(--easeOut),
-    box-shadow var(--durationFast) var(--easeOut);
-}
-
-.formTextarea {
-  resize: vertical;
-  min-height: 8rem;
-}
-
-.formInput:focus,
-.formTextarea:focus {
-  outline: none;
-  border-color: var(--colorAccent);
-  box-shadow: 0 0 0 3px var(--colorAccentSoft);
-}
-
-.formStatus {
-  font-size: var(--textSmall);
-  padding: var(--spaceXs) var(--spaceSm);
-  border-radius: var(--radiusSm);
-}
-
-.formStatus.isSuccess {
-  color: var(--colorAccent);
-  background: var(--colorAccentSoft);
-}
-
-.formStatus.isError {
-  color: #f87171;
-  background: rgba(248, 113, 113, 0.12);
-}
-
-/* Revealed only after a successful submission. Animated in so the reward
-   for filling the form is obvious rather than something to hunt for. */
-.resumeUnlock {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  animation: unlockFadeIn var(--durationBase) var(--easeOut) both;
-}
-
-@keyframes unlockFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-6px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-.formHint {
-  font-size: var(--textMicro);
-  color: var(--colorTextMuted);
-}
-
-@media (max-width: 860px) {
-  .contactGrid {
-    grid-template-columns: 1fr;
-    gap: var(--spaceLg);
-  }
-}
-
-/* --- Footer --- */
-.siteFooter {
-  border-top: 1px solid var(--colorBorder);
-  padding-block: var(--spaceLg);
-  margin-top: var(--spaceXl);
-}
-
-.siteFooterInner {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spaceMd);
-  font-size: var(--textSmall);
-  color: var(--colorTextMuted);
-}
-
-.footerLinks {
-  display: flex;
-  gap: var(--spaceMd);
-}
-
-.footerLinks a {
-  transition: color var(--durationFast) var(--easeOut);
-}
-
-.footerLinks a:hover {
-  color: var(--colorAccent);
-}
-
-/* ==========================================================================
-   11. REDUCED MOTION
-
-   Users with a vestibular-motion sensitivity setting get the full content
-   with none of the movement. Everything is forced to its final state
-   rather than hidden, so nothing becomes unreachable.
-   ========================================================================== */
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-    scroll-behavior: auto !important;
-  }
-
-  .revealItem,
-  .revealItem.fromLeft,
-  .revealItem.fromRight {
-    opacity: 1;
-    transform: none;
-  }
-
-  .card:hover,
-  .buttonPrimary:hover,
-  .buttonGhost:hover,
-  .contactChannel:hover {
-    transform: none;
   }
 }
 
@@ -1657,14 +861,14 @@ button {
     </div>
     <div class="zigZagBlock alignLeft">
       <div class="zigZagBody revealItem fromLeft"><article class="card">
-             <h3 class="cardTitle">RuneLite Plugin</h3>
+             <h3 class="cardTitle">Character Stats</h3>
              <p class="cardSubtitle">Open-Source Contribution</p>
              <p class="cardBody">Authored and published a game-client plugin through the open-source RuneLite ecosystem, taking it from local build to public release.</p>
              <ul class="bulletList"><li>Diagnosed and resolved Gradle build and resource-packaging issues blocking the release.</li><li>Navigated an external maintainer review process to ship to production users.</li></ul>
              <div class="projectLinks">
+                      <a class="buttonGhost" href="https://github.com/tailored-data/OSRSCharacterStatsDisplays" target="_blank" rel="noreferrer noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.7A5.2 5.2 0 0 0 19.9 5a4.9 4.9 0 0 0-.1-3.6s-1.1-.3-3.7 1.4a12.7 12.7 0 0 0-6.6 0C6.9 1.1 5.8 1.4 5.8 1.4A4.9 4.9 0 0 0 5.7 5a5.2 5.2 0 0 0-1.4 3.6c0 5.2 3.2 6.4 6.2 6.7a3.4 3.4 0 0 0-.9 2.6V22"/></svg> View source</a>
+                      <a class="buttonGhost" href="https://runelite.net/plugin-hub/show/character-stats" target="_blank" rel="noreferrer noopener">Plugin Hub <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
                       
-                      
-                      <span class="sourceNote">Source available on request</span>
                     </div>
            </article></div>
       <div class="zigZagAside revealItem fromRight"><div>
@@ -1688,6 +892,28 @@ button {
     <p class="researchIntro revealItem">Notes on what I&rsquo;ve been reading and running — mostly databases, local model infrastructure, and what AI is doing to technical work. Updated monthly, and written the way I actually think about this stuff rather than the way a blog post is supposed to sound.</p>
     <div class="researchList">
       
+        <details class="researchPost revealItem">
+          <summary class="researchSummary">
+            <div class="researchMeta">
+              <span class="researchDate">September 2026</span>
+              <span class="researchDot" aria-hidden="true"></span>
+              <span>2 min read</span>
+            </div>
+            <h3 class="researchTitle">NVIDIA Built Something Real and Still Botched the Reveal</h3>
+            <p class="researchDek">DLSS 5 and Grok Bot shipped weeks apart, and both got judged on how they were shown rather than what they actually do. That gap is steering AI investment as much as the research is.</p>
+            <div class="researchFooter">
+              <div class="tagRow"><span class="pill">DLSS 5</span><span class="pill">Neural Rendering</span><span class="pill">Multi-Agent AI</span><span class="pill">Market Perception</span></div>
+              <span class="researchToggle">Read <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+            </div>
+          </summary>
+          <div class="researchBody">
+            <p>NVIDIA’s DLSS 5 went live September 3rd, and the showcase game is NBA 2K27. Not Cyberpunk, not some flagship single-player epic — a yearly sports title. I get why people are unimpressed by the choice. It’s a strange first impression for what’s actually a pretty significant piece of tech.</p><p>DLSS 5 does 3D-guided neural rendering — a learned model infusing lighting and material detail into the scene in real time, aiming at something closer to actual photoreal rendering instead of the usual rasterize-and-upscale approach. In 2K27 that shows up mostly in skin and lighting on player models. It’s a real jump. I just don’t think most people watching a basketball clip are equipped to tell the difference between &quot;this looks better&quot; and &quot;this is a fundamentally different rendering pipeline.&quot;</p><p>That’s basically what happened with the first version of this back in 2025 too. It launched to a lot of people calling it an AI filter slapped over a normal render, because the demos didn’t separate &quot;new rendering approach&quot; from &quot;looks shinier.&quot; NVIDIA had something real and showed it in a way that made it easy to write off.</p><p class="researchAside">Might be giving NVIDIA’s marketing team too hard a time here. I wasn’t in the room when someone picked NBA 2K27 as the launch title. But the public reaction is the public reaction, and it wasn’t &quot;wow.&quot;</p><p>The more interesting part happened after launch, not at it. Within days, someone pulled the neural rendering runtime out of the 2K27 build, and modders had it running in Cyberpunk 2077, Control, GTA V — games nowhere near NVIDIA’s official list. NVIDIA didn’t build an open ecosystem around this. The community built one anyway, the same week it shipped.</p><p>Grok Bot came out of xAI a few weeks earlier, and it’s a completely different kind of announcement doing the same thing to me. The pitch: agents that each get their own computer in the cloud, work inside your actual tools instead of a sandboxed chat window, and talk to each other to divide up work — one bot on sales outbound, another triaging bugs, a third handling the handoff between them. That’s a real architectural choice, not just a marketing wrapper. Whether it holds up under real use is a separate question, but &quot;one machine per agent, agents coordinating like a team&quot; is not nothing.</p><p>Put next to each other, I think these are the same story. Both companies shipped something with a real technical claim behind it. Both got a reception shaped almost entirely by how the thing was shown, not by what it does. That gap is doing as much to steer where AI investment goes next as the underlying research is — a company chasing the next flashy demo moment is a different company than one making the harder case for the substance under it.</p><p class="researchAside">The &quot;one machine per agent&quot; idea landed differently for me than it probably did for most people reading that page. I spent this month trying to hand-route a single local model through Claude Code and got stuck being scared of my own config. xAI just shipped the productized version of the thing I was fumbling with. Not sure what to do with that yet.</p>
+            <div class="researchSources">
+                     <h4 class="researchSourcesTitle">Sources</h4>
+                     <ul><li><a href="https://research.nvidia.com/labs/adlr/files/DLSS5_Report.pdf" target="_blank" rel="noreferrer noopener">DLSS 5: Generative Neural Rendering — Technical Report (NVIDIA ADLR)</a></li><li><a href="https://x.ai/news/introducing-grok-bot" target="_blank" rel="noreferrer noopener">Introducing Grok Bot | SpaceXAI</a></li></ul>
+                   </div>
+          </div>
+        </details>
         <details class="researchPost revealItem">
           <summary class="researchSummary">
             <div class="researchMeta">
